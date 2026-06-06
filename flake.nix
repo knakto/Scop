@@ -8,15 +8,14 @@
   {
     devShell.x86_64-linux = pkgs.mkShell {
       buildInputs = with pkgs; [
+        valgrind
         bear
+        glew
+        libGL
         glfw
-        vulkan-headers
-        vulkan-loader
-        vulkan-tools 
       ];
       shellHook = ''
-        export CPLUS_INCLUDE_PATH="${pkgs.vulkan-headers}/include:$CPLUS_INCLUDE_PATH"
-        export LD_LIBRARY_PATH=${pkgs.vulkan-loader}/lib:$LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH="${pkgs.libGL}/lib:${pkgs.glew}/lib:$LD_LIBRARY_PATH"
       '';
     };
   };
