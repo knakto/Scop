@@ -7,14 +7,16 @@ SRC_DIR := srcs
 INC_DIR := include
 OBJ_DIR := obj
 
-FILES := main.cpp render.cpp
+FILES := main.cpp Application.cpp ObjectData.cpp RotationMatrix.cpp
 
 INC  = -I$(INC_DIR)
 SRC  = $(addprefix $(SRC_DIR)/, $(FILES))
 OBJ  = $(addprefix $(OBJ_DIR)/, $(FILES:%.cpp=%.o))
+DEP  = $(OBJ:%.o=%.d)
 
-VKFLAGS := -lglfw -lvulkan
-FLAGS = $(VKFLAGS)
+CFLAGS := -MMD -MP -g -Wall -Wextra -Werror -Wpedantic
+VKFLAGS := -lglfw -lGLEW -lGL
+FLAGS = $(VKFLAGS) $(CFLAGS)
 
 all: $(NAME)
 
@@ -24,8 +26,10 @@ $(NAME): $(OBJ)
 $(OBJ_DIR):
 	$(MKDIR) $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
-	c++ -c $< $(INC) -o $@
+-include $(DEP)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp Makefile | $(OBJ_DIR)
+	c++ $(FLAGS) -c $< $(INC) -o $@
 
 clean:
 	$(RM) $(OBJ_DIR)
