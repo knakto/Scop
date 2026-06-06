@@ -1,0 +1,204 @@
+/**
+ * Application
+ * - initWindow: hint window and create window context
+ * - initGL: - init shader
+ *           - init VAO
+ */
+
+#include "Application.hpp"
+#include "RotationMatrix.hpp"
+#include <GLFW/glfw3.h>
+#include <exception>
+#include <stdexcept>
+
+static void initShaderProgram(const char *vertexShaderSource, const char *fragmentShaderSource, unsigned int *shaderProgram);
+static GLuint compile_shader(GLenum type, const char *shaderSource);
+/**
+ * init window
+ * - init glfw
+ * - hint window
+ *   - hint GLFW version 3.3
+ *   - hint to use default openGL profile
+ * - create window
+ * - make context window
+ * - set SwapInterval to link FPS and refreshrate
+ * - init glew
+ * - setViewport
+ */
+void Application::initWindow(void)
+{
+  int init_succcess = glfwInit();
+  if (init_succcess != GLFW_TRUE)
+    throw std::runtime_error("Init GLFW failed.");
+
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  _window = glfwCreateWindow(_width, _height, _name, nullptr, nullptr);
+  if (!_window)
+  {
+    glfwTerminate();
+    throw std::runtime_error("Create window failed.");
+  }
+
+  glfwMakeContextCurrent(_window);
+  glfwSwapInterval(1);
+
+  GLenum glew_success = glewInit();
+  if (glew_success != GLEW_OK)
+  {
+    glfwDestroyWindow(_window);
+    glfwTerminate();
+    throw std::runtime_error("Init Glew failed.");
+  }
+
+  glViewport(0, 0, _width, _height);
+}
+
+/**
+ * init OpenGl engine
+ * - init shader program: - init vertexShader
+ *                        - init fragmentShader
+ *                        - create programShader
+ *                        - delete vertexShader and fragmentShader
+ * - setup z buffer flags
+ * - create VBO(vertex buffer object)
+ * - register VAO(vertex array object)
+ *
+ */
+void Application::initGL(void)
+{
+  initShaderProgram(_vertexShaderSource, _fragmentShaderSource, &_shaderProgram);
+
+  glDisable(GL_CULL_FACE);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+
+  setupVAO();
+}
+
+static void initShaderProgram(const char *vertexShaderSource, const char *fragmentShaderSource, unsigned int *shaderProgram)
+{
+  unsigned int vertexShader = compile_shader(GL_VERTEX_SHADER, vertexShaderSource);
+  unsigned int fragmentShader = compile_shader(GL_FRAGMENT_SHADER, fragmentShaderSource);
+
+  *shaderProgram = glCreateProgram();
+  glAttachShader(*shaderProgram, vertexShader);
+  glAttachShader(*shaderProgram, fragmentShader);
+  glLinkProgram(*shaderProgram);
+
+  GLint success;
+  glGetProgramiv(*shaderProgram, GL_LINK_STATUS, &success);
+  if (!success)
+  {
+    GLint length;
+    glGetProgramiv(*shaderProgram, GL_INFO_LOG_LENGTH, &length);
+    if (length == 0)
+      throw std::runtime_error("Compile shader failed, with no log.");
+    std::string log(length, 0);
+    glGetProgramInfoLog(*shaderProgram, length, nullptr, log.data());
+    throw std::runtime_error("Compile shader failed: \n" + log);
+  }
+
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
+  glUseProgram(*shaderProgram);
+}
+
+static GLuint compile_shader(GLenum type, const char *shaderSource)
+{
+  unsigned int shader = glCreateShader(type);
+  glShaderSource(shader, 1, &shaderSource, nullptr);
+  glCompileShader(shader);
+
+  GLint success;
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+  if (!success)
+  {
+    GLint length;
+    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+    if (length == 0)
+      throw std::runtime_error("Compile shader failed, with no log.");
+    std::string log(length, 0);
+    glGetShaderInfoLog(shader, length, nullptr, log.data());
+    throw std::runtime_error("Compile shader failed: \n" + log);
+  }
+
+  return shader;
+}
+
+void Application::setupVAO(void)
+{
+  float vertices[] = {
+    -.1, .1, .1,
+    -.1, -.1, .1,
+    .1, .1, .1
+  };
+
+  glCreateBuffers(1, &_vbo);
+  glNamedBufferStorage(_vbo, sizeof vertices, vertices, 0);
+
+  glCreateVertexArrays(1, &_vao);
+  glVertexArrayVertexBuffer(_vao, 0, _vbo, 0, 3 * sizeof(float));
+  glVertexArrayBindingDivisor(_vao, 0, 0);
+
+  glVertexArrayAttribBinding(_vao, 0, 0);
+  glVertexArrayAttribFormat(_vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
+  glEnableVertexArrayAttrib(_vao, 0);
+
+  glBindVertexArray(_vao);
+}
+
+void Application::mainloop(void)
+{
+  std::cout << "loop" << std::endl;
+  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+  Matrix4x4 matrix{1, 3, 0.01};
+  while (!glfwWindowShouldClose(this->_window))
+  {
+    if(glfwGetKey(this->_window, GLFW_KEY_Q) == GLFW_PRESS)
+      glfwSetWindowShouldClose(this->_window, true);
+    if(glfwGetKey(this->_window, GLFW_KEY_W) == GLFW_PRESS)
+      matrix.rotateX(Matrix4x4::UP);
+    if(glfwGetKey(this->_window, GLFW_KEY_S) == GLFW_PRESS)
+      matrix.rotateX(Matrix4x4::DOWN);
+    if(glfwGetKey(this->_window, GLFW_KEY_D) == GLFW_PRESS)
+      matrix.rotateY(Matrix4x4::UP);
+    if(glfwGetKey(this->_window, GLFW_KEY_A) == GLFW_PRESS)
+      matrix.rotateY(Matrix4x4::DOWN);
+    if(glfwGetKey(this->_window, GLFW_KEY_K) == GLFW_PRESS)
+      matrix.translateY(Matrix4x4::UP);
+    if(glfwGetKey(this->_window, GLFW_KEY_J) == GLFW_PRESS)
+      matrix.translateY(Matrix4x4::DOWN);
+    if(glfwGetKey(this->_window, GLFW_KEY_L) == GLFW_PRESS)
+      matrix.translateX(Matrix4x4::UP);
+    if(glfwGetKey(this->_window, GLFW_KEY_H) == GLFW_PRESS)
+      matrix.translateX(Matrix4x4::DOWN);
+    if(glfwGetKey(this->_window, GLFW_KEY_Z) == GLFW_PRESS)
+      matrix.zoomMatrix(Matrix4x4::UP);
+    if(glfwGetKey(this->_window, GLFW_KEY_X) == GLFW_PRESS)
+      matrix.zoomMatrix(Matrix4x4::DOWN);
+    glfwPollEvents();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    matrix.calculateMatrix();
+
+    int matrixLoc = glGetUniformLocation(this->_shaderProgram, "matrix");
+    glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, matrix);
+
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glfwSwapBuffers(this->_window);
+  }
+}
+
+void Application::clean(void)
+{
+  std::cout << "clean" << std::endl;
+  glDeleteVertexArrays(1, &_vao);
+  glDeleteBuffers(1, &_vbo);
+  glDeleteProgram(_shaderProgram);
+
+  glfwDestroyWindow(_window);
+  glfwTerminate();
+}
