@@ -1,9 +1,25 @@
+#include <exception>
 #include <iostream>
-#include "render.hpp"
+#include "Application.hpp"
+#include "ObjectData.hpp"
 
-int main(void)
+int main(int c, char **v)
 {
-  Render screen;
+  (void)c;
+  (void)v;
+  // if (c != 2)
+  // {
+  //   std::cerr << "usage: ./scop <filename>.obj" << std::endl;
+  //   return 1;
+  // }
+  try{
+    // ObjectData *obj = new ObjectData(v[1]);
+    Application *app = new Application("scop", 1920, 1080);
 
-  screen.run();
+    app->run();
+    delete app;
+  }
+  catch ( const std::exception& e ){
+      std::cout << e.what() << std::endl;
+  }
 }
