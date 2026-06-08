@@ -50,7 +50,6 @@ void Matrix4x4::rotateY(e_mode mode)
     _angleY = 0;
   if (_angleY < 0)
     _angleY = 360;
-  std::cout << _angleY << std::endl;
 }
 
 void Matrix4x4::rotateZ(e_mode mode)
