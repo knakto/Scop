@@ -10,19 +10,23 @@
 #ifndef MYSHADER
 # define MYSHADER
 # define VERTEXT_SRC \
-"#version 330 core\n" \
+"#version 450 core\n" \
 "layout (location = 0) in vec3 aPos;\n" \
+"layout (location = 1) in vec3 aColor;\n" \
+"layout (location = 0) out vec3 oColor;\n" \
 "uniform mat4 matrix;" \
 "void main()\n" \
 "{\n" \
 "   gl_Position = matrix * vec4(aPos, 1.0);\n" \
+"   oColor = aColor;\n" \
 "}\0"
 # define FRAGMENT_SRC \
-"#version 330 core\n" \
+"#version 450 core\n" \
+"layout (location = 0) in vec3 color;\n" \
 "out vec4 FragColor;\n" \
 "void main()\n" \
 "{\n" \
-"   FragColor = vec4(1.0f);\n" \
+"   FragColor = vec4(color, 1.0f);\n" \
 "}\0"
 #endif
 
@@ -32,8 +36,10 @@ private:
   const char *_vertexShaderSource;
   const char *_fragmentShaderSource;
   unsigned int _shaderProgram;
-  GLuint _vao;
-  GLuint _vbo;
+  GLuint _vao; // vertex array object
+  GLuint _vbo; // vertex buffer object
+  GLuint _ebo; // element buffer object
+  GLuint _cbo;
 
   void initWindow(void);
   void initGL(void);
