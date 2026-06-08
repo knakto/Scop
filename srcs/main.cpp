@@ -5,19 +5,18 @@
 
 int main(int c, char **v)
 {
-  (void)c;
-  (void)v;
-  // if (c != 2)
-  // {
-  //   std::cerr << "usage: ./scop <filename>.obj" << std::endl;
-  //   return 1;
-  // }
+  if (c != 2)
+  {
+    std::cerr << "usage: ./scop <filename>.obj" << std::endl;
+    return 1;
+  }
   try{
-    // ObjectData *obj = new ObjectData(v[1]);
+    ObjectData *obj = new ObjectData(v[1]);
     Application *app = new Application("scop", 1920, 1080);
 
     app->run();
     delete app;
+    delete obj;
   }
   catch ( const std::exception& e ){
       std::cout << e.what() << std::endl;
