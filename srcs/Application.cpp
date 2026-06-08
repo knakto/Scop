@@ -8,6 +8,7 @@
 #include "Application.hpp"
 #include "RotationMatrix.hpp"
 #include <GLFW/glfw3.h>
+#include <cstdint>
 #include <exception>
 #include <stdexcept>
 
@@ -131,21 +132,75 @@ static GLuint compile_shader(GLenum type, const char *shaderSource)
 void Application::setupVAO(void)
 {
   float vertices[] = {
-    -.1, .1, .1,
-    -.1, -.1, .1,
-    .1, .1, .1
+    -.5f, .5f, .5f,
+    -.5f, .5f, -.5f,
+    .5f, .5f, -.5f,
+    .5f, .5f, .5f,
+    -.5f, -.5f, .5f,
+    -.5f, -.5f, -.5f,
+    .5f, -.5f, -.5f,
+    .5f, -.5f, .5f,
+  };
+
+  float color[] = {
+     1, 1, 1,
+     0, 0,  0,
+    1, 1,  1,
+    0, 0, 1,
+     1,  1, 1,
+     0,  1,  0,
+    1,  1,  1,
+    1,  0, 0
+  };
+
+  unsigned int indices[] = {
+    // หน้า Front (ด้านหน้า Z = 0.5)
+    0, 4, 7,
+    7, 3, 0,
+
+    // หน้า Back (ด้านหลัง Z = -0.5)
+    1, 2, 6,
+    6, 5, 1,
+
+    // หน้า Left (ด้านซ้าย X = -0.5)
+    0, 1, 5,
+    5, 4, 0,
+
+    // หน้า Right (ด้านขวา X = 0.5)
+    3, 7, 6,
+    6, 2, 3,
+
+    // หน้า Top (ด้านบน Y = 0.5)
+    0, 3, 2,
+    2, 1, 0,
+
+    // หน้า Bottom (ด้านล่าง Y = -0.5)
+    4, 5, 6,
+    6, 7, 4
   };
 
   glCreateBuffers(1, &_vbo);
   glNamedBufferStorage(_vbo, sizeof vertices, vertices, 0);
 
+  glCreateBuffers(1, &_cbo);
+  glNamedBufferStorage(_cbo, sizeof color, color, 0);
+
+  glCreateBuffers(1, &_ebo);
+  glNamedBufferStorage(_ebo, sizeof indices, indices, 0);
+
   glCreateVertexArrays(1, &_vao);
+  glVertexArrayElementBuffer(_vao, _ebo);
   glVertexArrayVertexBuffer(_vao, 0, _vbo, 0, 3 * sizeof(float));
+  glVertexArrayVertexBuffer(_vao, 1, _cbo, 0, 3 * sizeof(float));
   glVertexArrayBindingDivisor(_vao, 0, 0);
 
   glVertexArrayAttribBinding(_vao, 0, 0);
   glVertexArrayAttribFormat(_vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
   glEnableVertexArrayAttrib(_vao, 0);
+
+  glVertexArrayAttribBinding(_vao, 1, 1);
+  glVertexArrayAttribFormat(_vao, 1, 3, GL_FLOAT, GL_FALSE, 0);
+  glEnableVertexArrayAttrib(_vao, 1);
 
   glBindVertexArray(_vao);
 }
@@ -187,7 +242,7 @@ void Application::mainloop(void)
     int matrixLoc = glGetUniformLocation(this->_shaderProgram, "matrix");
     glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, matrix);
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
     glfwSwapBuffers(this->_window);
   }
 }
@@ -197,6 +252,7 @@ void Application::clean(void)
   std::cout << "clean" << std::endl;
   glDeleteVertexArrays(1, &_vao);
   glDeleteBuffers(1, &_vbo);
+  glDeleteBuffers(1, &_ebo);
   glDeleteProgram(_shaderProgram);
 
   glfwDestroyWindow(_window);
