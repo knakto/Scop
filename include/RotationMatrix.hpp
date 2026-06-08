@@ -12,14 +12,14 @@ public:
   } t_mode;
 
 private:
-  float _matrix[16];
-  float _angleX;
-  float _angleY;
-  float _angleZ;
-  float _moveX;
-  float _moveY;
-  float _moveZ;
-  float _zoom;
+  float _matrix[16]{};
+  float _angleX{};
+  float _angleY{};
+  float _angleZ{};
+  float _moveX{};
+  float _moveY{};
+  float _moveZ{};
+  float _zoom{0.1};
 
   float _moveScale;
   float _rotateScale;
