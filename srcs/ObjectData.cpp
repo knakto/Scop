@@ -24,6 +24,7 @@ ObjectData::ObjectData(const std::string& objectFile)
 	for (std::map<size_t, t_face>::iterator it = this->_f.begin(); it != this->_f.end(); it++)
 	{
 		t_face face = it->second;
+    std::cout << "f: ";
 		for (std::vector<t_facelink>::iterator fl = face.begin(); fl != face.end(); fl++)
 		{
 			if (fl->is_have_v)
