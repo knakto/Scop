@@ -1,4 +1,6 @@
 #include "ObjectData.hpp"
+#include <stdexcept>
+#include <vector>
 
 static bool checkFileType(const std::string& name, const std::string& type);
 static std::string strtrim(const std::string& str);
@@ -122,7 +124,29 @@ void	ObjectData::facelink(std::istringstream& line, size_t& current_pos)
 		// std::cout << "value: " << v << " " << vt << " " << vn << std::endl;
 		// std::cout << "count f arg " << current_pos << " : " << count_slash << std::endl;
 	}
-	this->_f.insert(std::make_pair(current_pos++, face));
+  if (face.size() > 4)
+    throw std::runtime_error("This program no handle no more 4 facelink.");
+  else if (face.size() < 3)
+    throw std::runtime_error("can not process less than 3 facelink.");
+  else if (face.size() == 4)
+  {
+    // if have 4 facelink like f 1 2 3 4
+    t_face face1;
+    t_face face2;
+
+    face1.push_back(face[0]);
+    face1.push_back(face[1]);
+    face1.push_back(face[3]);
+
+    face2.push_back(face[3]);
+    face2.push_back(face[1]);
+    face2.push_back(face[2]);
+
+    this->_f.insert(std::make_pair(current_pos++, face1));
+    this->_f.insert(std::make_pair(current_pos++, face2));
+  }
+  else
+    this->_f.insert(std::make_pair(current_pos++, face));
 }
 
 t_facelink	ObjectData::findPointOfFace(const int& v, const int& vt, const int& vn)
@@ -153,7 +177,7 @@ void	ObjectData::readfile(std::fstream& obj)
 		std::string	input_line;
 		size_t		line_count = 1;
 		size_t		fCount = 1;
-		size_t		vCount = 1;
+		size_t		vCount = 0;
 		size_t		vnCount = 1;
 		size_t		vtCount = 1;
 
@@ -251,3 +275,29 @@ static void	vec2Collect(std::istringstream& line, std::map<size_t, t_vec2>& coll
 	collection.insert(std::make_pair(current_pos, vec));
 	current_pos++;
 }
+
+std::vector<float>  ObjectData::getVertexs(void) const
+{
+  std::vector<float> res;
+
+  for (std::map<size_t, t_vec3>::const_iterator it = _v.begin(); it != _v.end(); it++)
+  {
+    res.push_back(it->second.x);
+    res.push_back(it->second.y);
+    res.push_back(it->second.z);
+  }
+  return res;
+}
+
+std::vector<unsigned int>  ObjectData::getIndices(void) const
+{
+  std::vector<unsigned int> res;
+
+  for (std::map<size_t, t_face>::const_iterator it = _f.begin(); it != _f.end(); it++)
+  {
+    for (int i = 0; i < 3; i++)
+      res.push_back(static_cast<unsigned int>(it->second[i].v->first - 1));
+  }
+  return res;
+}
+
