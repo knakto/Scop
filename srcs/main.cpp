@@ -1,7 +1,8 @@
 #include <exception>
 #include <iostream>
+// #include "ObjectData.hpp"
 #include "Application.hpp"
-#include "ObjectData.hpp"
+#include "Object.hpp"
 
 int main(int c, char **v)
 {
@@ -11,12 +12,12 @@ int main(int c, char **v)
     return 1;
   }
   try{
-    ObjectData *obj = new ObjectData(v[1]);
+    Object obj(v[1]);
+    // ObjectData *obj = new ObjectData(v[1]);
     Application *app = new Application("scop", 1920, 1080);
 
     app->run(obj);
     delete app;
-    delete obj;
   }
   catch ( const std::exception& e ){
       std::cout << e.what() << std::endl;
