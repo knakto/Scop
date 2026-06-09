@@ -6,11 +6,8 @@
  */
 
 #include "Application.hpp"
-#include "RotationMatrix.hpp"
-#include <GLFW/glfw3.h>
-#include <cstdint>
-#include <exception>
-#include <stdexcept>
+#include "ObjectData.hpp"
+#include <vector>
 
 static void initShaderProgram(const char *vertexShaderSource, const char *fragmentShaderSource, unsigned int *shaderProgram);
 static GLuint compile_shader(GLenum type, const char *shaderSource);
@@ -68,7 +65,7 @@ void Application::initWindow(void)
  * - register VAO(vertex array object)
  *
  */
-void Application::initGL(void)
+void Application::initGL(ObjectData* obj)
 {
   initShaderProgram(_vertexShaderSource, _fragmentShaderSource, &_shaderProgram);
 
@@ -76,7 +73,7 @@ void Application::initGL(void)
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
-  setupVAO();
+  setupVAO(obj);
 }
 
 static void initShaderProgram(const char *vertexShaderSource, const char *fragmentShaderSource, unsigned int *shaderProgram)
@@ -129,18 +126,20 @@ static GLuint compile_shader(GLenum type, const char *shaderSource)
   return shader;
 }
 
-void Application::setupVAO(void)
+void Application::setupVAO(ObjectData* obj)
 {
-  float vertices[] = {
-    -.5f, .5f, .5f,
-    -.5f, .5f, -.5f,
-    .5f, .5f, -.5f,
-    .5f, .5f, .5f,
-    -.5f, -.5f, .5f,
-    -.5f, -.5f, -.5f,
-    .5f, -.5f, -.5f,
-    .5f, -.5f, .5f,
-  };
+  std::vector<float> v = obj->getVertexs();
+  std::vector<unsigned int> f = obj->getIndices();
+  // float vertices[] = {
+  //   -.5f, .5f, .5f,
+  //   -.5f, .5f, -.5f,
+  //   .5f, .5f, -.5f,
+  //   .5f, .5f, .5f,
+  //   -.5f, -.5f, .5f,
+  //   -.5f, -.5f, -.5f,
+  //   .5f, -.5f, -.5f,
+  //   .5f, -.5f, .5f,
+  // };
 
   float color[] = {
      1, 1, 1,
@@ -149,44 +148,80 @@ void Application::setupVAO(void)
     0, 0, 1,
      1,  1, 1,
      0,  1,  0,
-    1,  1,  1,
-    1,  0, 0
+    // 1,  1,  1,
+    // 1,  0, 0
+     1, 1, 1,
+     0, 0,  0,
+    1, 1,  1,
+    0, 0, 1,
+     1,  1, 1,
+     0,  1,  0,
+     1, 1, 1,
+     0, 0,  0,
+    1, 1,  1,
+    0, 0, 1,
+     1,  1, 1,
+     0,  1,  0,
+     1, 1, 1,
+     0, 0,  0,
+    1, 1,  1,
+    0, 0, 1,
+     1,  1, 1,
+     0,  1,  0,
+     1, 1, 1,
+     0, 0,  0,
+    1, 1,  1,
+    0, 0, 1,
+     1,  1, 1,
+     0,  1,  0,
+     1, 1, 1,
+     0, 0,  0,
+    1, 1,  1,
+    0, 0, 1,
+     1,  1, 1,
+     0,  1,  0,
+     1, 1, 1,
+     0, 0,  0,
+    1, 1,  1,
+    0, 0, 1,
+     1,  1, 1,
+     0,  1,  0,
   };
 
-  unsigned int indices[] = {
-    // หน้า Front (ด้านหน้า Z = 0.5)
-    0, 4, 7,
-    7, 3, 0,
-
-    // หน้า Back (ด้านหลัง Z = -0.5)
-    1, 2, 6,
-    6, 5, 1,
-
-    // หน้า Left (ด้านซ้าย X = -0.5)
-    0, 1, 5,
-    5, 4, 0,
-
-    // หน้า Right (ด้านขวา X = 0.5)
-    3, 7, 6,
-    6, 2, 3,
-
-    // หน้า Top (ด้านบน Y = 0.5)
-    0, 3, 2,
-    2, 1, 0,
-
-    // หน้า Bottom (ด้านล่าง Y = -0.5)
-    4, 5, 6,
-    6, 7, 4
-  };
+  // unsigned int indices[] = {
+  //   // หน้า Front (ด้านหน้า Z = 0.5)
+  //   0, 4, 7,
+  //   7, 3, 0,
+  //
+  //   // หน้า Back (ด้านหลัง Z = -0.5)
+  //   1, 2, 6,
+  //   6, 5, 1,
+  //
+  //   // หน้า Left (ด้านซ้าย X = -0.5)
+  //   0, 1, 5,
+  //   5, 4, 0,
+  //
+  //   // หน้า Right (ด้านขวา X = 0.5)
+  //   3, 7, 6,
+  //   6, 2, 3,
+  //
+  //   // หน้า Top (ด้านบน Y = 0.5)
+  //   0, 3, 2,
+  //   2, 1, 0,
+  //
+  //   // หน้า Bottom (ด้านล่าง Y = -0.5)
+  //   4, 5, 6,
+  //   6, 7, 4
+  // };
 
   glCreateBuffers(1, &_vbo);
-  glNamedBufferStorage(_vbo, sizeof vertices, vertices, 0);
+  glNamedBufferStorage(_vbo, v.size() * sizeof(float), v.data(), 0);
 
   glCreateBuffers(1, &_cbo);
   glNamedBufferStorage(_cbo, sizeof color, color, 0);
 
   glCreateBuffers(1, &_ebo);
-  glNamedBufferStorage(_ebo, sizeof indices, indices, 0);
+  glNamedBufferStorage(_ebo, f.size() * sizeof(unsigned int), f.data(), 0);
 
   glCreateVertexArrays(1, &_vao);
   glVertexArrayElementBuffer(_vao, _ebo);
@@ -205,11 +240,23 @@ void Application::setupVAO(void)
   glBindVertexArray(_vao);
 }
 
-void Application::mainloop(void)
+struct Material {
+    float Ka[3]; // แสงรอบทิศ
+    float Kd[3]; // สีหลัก
+    float Ks[3]; // สีเงาสะท้อน
+    float Ns;    // ความมันวาว
+};
+
+void Application::mainloop(ObjectData* obj)
 {
-  std::cout << "loop" << std::endl;
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-  Matrix4x4 matrix{1, 3, 0.01};
+  Matrix4x4 matrix{1, 1, 0.01};
+  Material material= {
+    {0.0f, 0.0f, 0.0f},       // Ka
+    {0.64f, 0.64f, 0.64f},    // Kd
+    {0.5f, 0.5f, 0.5f},       // Ks
+    96.078431f                // Ns
+  };
   while (!glfwWindowShouldClose(this->_window))
   {
     if(glfwGetKey(this->_window, GLFW_KEY_Q) == GLFW_PRESS)
@@ -242,14 +289,24 @@ void Application::mainloop(void)
     int matrixLoc = glGetUniformLocation(this->_shaderProgram, "matrix");
     glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, matrix);
 
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+    unsigned int ambientLoc  = glGetUniformLocation(_shaderProgram, "material.ambient");
+    unsigned int diffuseLoc  = glGetUniformLocation(_shaderProgram, "material.diffuse");
+    unsigned int specularLoc = glGetUniformLocation(_shaderProgram, "material.specular");
+    unsigned int shineLoc    = glGetUniformLocation(_shaderProgram, "material.shininess");
+
+    // ส่งตัวเลขจาก Struct ของเราพุ่งตรงเข้าการ์ดจอ!
+    glUniform3f(ambientLoc,  material.Ka[0], material.Ka[1], material.Ka[2]);
+    glUniform3f(diffuseLoc,  material.Kd[0], material.Kd[1], material.Kd[2]);
+    glUniform3f(specularLoc, material.Ks[0], material.Ks[1], material.Ks[2]);
+    glUniform1f(shineLoc,    material.Ns);
+
+    glDrawElements(GL_TRIANGLES, obj->getIndices().size(), GL_UNSIGNED_INT, nullptr);
     glfwSwapBuffers(this->_window);
   }
 }
 
 void Application::clean(void)
 {
-  std::cout << "clean" << std::endl;
   glDeleteVertexArrays(1, &_vao);
   glDeleteBuffers(1, &_vbo);
   glDeleteBuffers(1, &_ebo);
