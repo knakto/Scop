@@ -14,7 +14,7 @@ int main(int c, char **v)
     ObjectData *obj = new ObjectData(v[1]);
     Application *app = new Application("scop", 1920, 1080);
 
-    app->run();
+    app->run(obj);
     delete app;
     delete obj;
   }
