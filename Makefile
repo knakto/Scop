@@ -7,14 +7,14 @@ SRC_DIR := srcs
 INC_DIR := include
 OBJ_DIR := obj
 
-FILES := main.cpp Application.cpp ObjectData.cpp RotationMatrix.cpp
+FILES := main.cpp Application.cpp RotationMatrix.cpp Object.cpp
 
 INC  = -I$(INC_DIR)
 SRC  = $(addprefix $(SRC_DIR)/, $(FILES))
 OBJ  = $(addprefix $(OBJ_DIR)/, $(FILES:%.cpp=%.o))
 DEP  = $(OBJ:%.o=%.d)
 
-CFLAGS := -MMD -MP -g -Wall -Wextra -Werror -Wpedantic
+CFLAGS := -MMD -MP -g #-Wall -Wextra -Werror -Wpedantic
 VKFLAGS := -lglfw -lGLEW -lGL
 FLAGS = $(VKFLAGS) $(CFLAGS)
 
