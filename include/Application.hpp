@@ -2,6 +2,9 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include "ObjectData.hpp"
+#include "RotationMatrix.hpp"
+#include <cstdio>
 #include <stdexcept>
 #include <iostream>
 #include <cstddef>
@@ -9,25 +12,23 @@
 
 #ifndef MYSHADER
 # define MYSHADER
-# define VERTEXT_SRC \
-"#version 450 core\n" \
-"layout (location = 0) in vec3 aPos;\n" \
-"layout (location = 1) in vec3 aColor;\n" \
-"layout (location = 0) out vec3 oColor;\n" \
-"uniform mat4 matrix;" \
-"void main()\n" \
-"{\n" \
-"   gl_Position = matrix * vec4(aPos, 1.0);\n" \
-"   oColor = aColor;\n" \
-"}\0"
-# define FRAGMENT_SRC \
-"#version 450 core\n" \
-"layout (location = 0) in vec3 color;\n" \
-"out vec4 FragColor;\n" \
-"void main()\n" \
-"{\n" \
-"   FragColor = vec4(color, 1.0f);\n" \
-"}\0"
+# define VERTEXT_SRC R"(#version 450 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+layout (location = 0) out vec3 oColor;
+uniform mat4 matrix;
+void main()
+{
+   gl_Position = matrix * vec4(aPos, 1.0);
+   oColor = aColor;
+})"
+# define FRAGMENT_SRC R"(#version 450 core
+layout (location = 0) in vec3 color;
+out vec4 FragColor;
+void main()
+{
+   FragColor = vec4(color, 1.0f);
+})"
 #endif
 
 class Application{
@@ -42,10 +43,10 @@ private:
   GLuint _cbo;
 
   void initWindow(void);
-  void initGL(void);
-  void mainloop(void);
+  void initGL(ObjectData* obj);
+  void mainloop(ObjectData* obj);
   void clean(void);
-  void setupVAO(void);
+  void setupVAO(ObjectData* obj);
 public:
   const char  *_name;
   std::size_t _width;
@@ -58,10 +59,10 @@ public:
   Application(std::string name, std::size_t width, std::size_t height, const char *vertextSrc, const char *fragmentSrc)
   : _vertexShaderSource(vertextSrc), _fragmentShaderSource(fragmentSrc), _name(name.c_str()), _width(width), _height(height) {}
 
-  void run(void){
+  void run(ObjectData* obj){
     initWindow();
-    initGL();
-    mainloop();
+    initGL(obj);
+    mainloop(obj);
     clean();
   }
 };
