@@ -4,9 +4,8 @@
  * - initGL: - init shader
  *           - init VAO
  */
-
 #include "Application.hpp"
-#include "ObjectData.hpp"
+#include "Object.hpp"
 #include <vector>
 
 static void initShaderProgram(const char *vertexShaderSource, const char *fragmentShaderSource, unsigned int *shaderProgram);
@@ -65,7 +64,7 @@ void Application::initWindow(void)
  * - register VAO(vertex array object)
  *
  */
-void Application::initGL(ObjectData* obj)
+void Application::initGL(Object& obj)
 {
   initShaderProgram(_vertexShaderSource, _fragmentShaderSource, &_shaderProgram);
 
@@ -126,10 +125,10 @@ static GLuint compile_shader(GLenum type, const char *shaderSource)
   return shader;
 }
 
-void Application::setupVAO(ObjectData* obj)
+void Application::setupVAO(Object& obj)
 {
-  std::vector<float> v = obj->getVertexs();
-  std::vector<unsigned int> f = obj->getIndices();
+  std::vector<float> v = obj.getVertexs();
+  std::vector<unsigned int> f = obj.getIndices();
   // float vertices[] = {
   //   -.5f, .5f, .5f,
   //   -.5f, .5f, -.5f,
@@ -225,7 +224,7 @@ void Application::setupVAO(ObjectData* obj)
 
   glCreateVertexArrays(1, &_vao);
   glVertexArrayElementBuffer(_vao, _ebo);
-  glVertexArrayVertexBuffer(_vao, 0, _vbo, 0, 3 * sizeof(float));
+  glVertexArrayVertexBuffer(_vao, 0, _vbo, 0, 8 * sizeof(float));
   glVertexArrayVertexBuffer(_vao, 1, _cbo, 0, 3 * sizeof(float));
   glVertexArrayBindingDivisor(_vao, 0, 0);
 
@@ -233,8 +232,16 @@ void Application::setupVAO(ObjectData* obj)
   glVertexArrayAttribFormat(_vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
   glEnableVertexArrayAttrib(_vao, 0);
 
+  glVertexArrayAttribBinding(_vao, 2, 0);
+  glVertexArrayAttribFormat(_vao, 2, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
+  glEnableVertexArrayAttrib(_vao, 2);
+
+  glVertexArrayAttribBinding(_vao, 3, 0);
+  glVertexArrayAttribFormat(_vao, 3, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float));
+  glEnableVertexArrayAttrib(_vao, 3);
+
   glVertexArrayAttribBinding(_vao, 1, 1);
-  glVertexArrayAttribFormat(_vao, 1, 3, GL_FLOAT, GL_FALSE, 0);
+  glVertexArrayAttribFormat(_vao, 1, 8, GL_FLOAT, GL_FALSE, 0);
   glEnableVertexArrayAttrib(_vao, 1);
 
   glBindVertexArray(_vao);
@@ -247,7 +254,7 @@ struct Material {
     float Ns;    // ความมันวาว
 };
 
-void Application::mainloop(ObjectData* obj)
+void Application::mainloop(Object& obj)
 {
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   Matrix4x4 matrix{1, 1, 0.01};
@@ -257,6 +264,7 @@ void Application::mainloop(ObjectData* obj)
     {0.5f, 0.5f, 0.5f},       // Ks
     96.078431f                // Ns
   };
+  int size = obj.getIndices().size();
   while (!glfwWindowShouldClose(this->_window))
   {
     if(glfwGetKey(this->_window, GLFW_KEY_Q) == GLFW_PRESS)
@@ -300,7 +308,7 @@ void Application::mainloop(ObjectData* obj)
     glUniform3f(specularLoc, material.Ks[0], material.Ks[1], material.Ks[2]);
     glUniform1f(shineLoc,    material.Ns);
 
-    glDrawElements(GL_TRIANGLES, obj->getIndices().size(), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr);
     glfwSwapBuffers(this->_window);
   }
 }
