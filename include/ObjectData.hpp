@@ -66,4 +66,7 @@ class ObjectData {
 		std::map<size_t, t_face>	getf(void) const;
 		std::string					      getName(void) const;
 		std::string					      getMtllibName(void) const;
+
+    std::vector<float>        getVertexs(void) const;
+    std::vector<unsigned int>          getIndices(void) const;
 };
