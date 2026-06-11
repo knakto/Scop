@@ -1,7 +1,7 @@
 #include <RotationMatrix.hpp>
 
 Matrix4x4::Matrix4x4(void)
-: _moveScale(0.01f), _rotateScale(0.001f), _zoomScale(0.01f)
+: _moveScale(0.01f), _rotateScale(1), _zoomScale(0.01f)
 {
   _matrix[0] = 1; _matrix[4] = 0; _matrix[8] = 0; _matrix[12] = 0;
   _matrix[1] = 0; _matrix[5] = 1; _matrix[9] = 0; _matrix[13] = 0;
@@ -10,7 +10,7 @@ Matrix4x4::Matrix4x4(void)
 }
 
 Matrix4x4::Matrix4x4(float moveScale, float rotateScale, float zoomScale)
-: _moveScale(moveScale * 0.01f), _rotateScale(rotateScale * 0.001f), _zoomScale(zoomScale)
+: _moveScale(moveScale * 0.01f), _rotateScale(rotateScale), _zoomScale(zoomScale)
 {
   _matrix[0] = 1; _matrix[4] = 0; _matrix[8] = 0; _matrix[12] = 0;
   _matrix[1] = 0; _matrix[5] = 1; _matrix[9] = 0; _matrix[13] = 0;
@@ -129,7 +129,7 @@ static void getRotationMatrix(float matrix[16], float angleX, float angleY, floa
       0, 0, 1, 0,
       0, 0, 0, 1
     };
-    double rad = angleX * (180.0f / M_PI);
+    double rad = angleX * (M_PI / 180.0f);
     double c = cos(rad);
     double s = sin(rad);
 
@@ -148,7 +148,7 @@ static void getRotationMatrix(float matrix[16], float angleX, float angleY, floa
       0, 0, 1, 0,
       0, 0, 0, 1
     };
-    double rad = angleY * (180.0f / M_PI);
+    double rad = angleY * (M_PI / 180.0f);
     double c = cos(rad);
     double s = sin(rad);
 
@@ -167,7 +167,7 @@ static void getRotationMatrix(float matrix[16], float angleX, float angleY, floa
       0, 0, 1, 0,
       0, 0, 0, 1
     };
-    double rad = angleZ * (180.0f / M_PI);
+    double rad = angleZ * (M_PI / 180.0f);
     double c = cos(rad);
     double s = sin(rad);
 
@@ -177,6 +177,35 @@ static void getRotationMatrix(float matrix[16], float angleX, float angleY, floa
     tmp[1] = s;
     multiplyMatrix(matrix, matrix, tmp);
   }
+}
+
+static void createPerspective(float fovDegrees, float aspectRatio, float zNear, float zFar, float matrix[16])
+{
+    float result[16]{};
+    
+    // 1. แปลงองศาให้เป็นเรเดียน (คอมพิวเตอร์กินเรเดียนเป็นอาหาร)
+    float fovRadians = fovDegrees * (M_PI / 180.0f);
+    
+    // 2. คำนวณค่าตัวคูณของเลนส์ (focal length)
+    // ใช้สูตร 1.0 / tan(มุม / 2)
+    float tanHalfFov = std::tan(fovRadians / 2.0f);
+    float f = 1.0f / tanHalfFov;
+    
+    // 3. หยอดตัวเลขลงในช่องเมทริกซ์ 4x4 (แบบ Column-Major)
+    // คอลัมน์ที่ 0 (แกน X: บีบเข้าตามสัดส่วนหน้าจอ)
+    result[0]  = f / aspectRatio; 
+    
+    // คอลัมน์ที่ 1 (แกน Y: บีบเข้าตามระยะเลนส์)
+    result[5]  = f;               
+    
+    // คอลัมน์ที่ 2 (แกน Z: คำนวณการเรียงลำดับความลึก Near/Far)
+    result[10] = -(zFar + zNear) / (zFar - zNear);
+    result[11] = -1.0f; // หัวใจสำคัญ: ส่งค่า Z เก่าไปหารให้ของที่อยู่ไกลเล็กลง (Perspective Divide)
+    
+    // คอลัมน์ที่ 3 (การเลื่อนแกน Z)
+    result[14] = -(2.0f * zFar * zNear) / (zFar - zNear);
+
+    multiplyMatrix(matrix, result, matrix);
 }
 
 void Matrix4x4::calculateMatrix(void)
@@ -201,6 +230,7 @@ void Matrix4x4::calculateMatrix(void)
   rotateMatrix[8] *= _zoom;
   rotateMatrix[9] *= _zoom;
   rotateMatrix[10] *= _zoom;
+  createPerspective(60.0f, 1920.0f / 1080.0f, 0.1f, 100.0f, rotateMatrix);
   for (int i = 0; i < 16; i++)
     _matrix[i] = rotateMatrix[i];
 }
