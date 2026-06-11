@@ -45,3 +45,4 @@ void        vec3Collect(std::istringstream& line, std::vector<t_vec3>& collectio
 void        vec2Collect(std::istringstream& line, std::vector<t_vec2>& collection);
 void        faceCollect(std::istringstream& line, std::vector<std::vector<std::vector<int> > >& collection);
 t_vec3      findVn(t_vec3 a, t_vec3 b, t_vec3 c);
+void        normalizeCenter(std::vector<t_vec3>& v);
