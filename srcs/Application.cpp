@@ -269,9 +269,9 @@ void Application::mainloop(Object& obj)
   {
     if(glfwGetKey(this->_window, GLFW_KEY_Q) == GLFW_PRESS)
       glfwSetWindowShouldClose(this->_window, true);
-    if(glfwGetKey(this->_window, GLFW_KEY_W) == GLFW_PRESS)
-      matrix.rotateX(Matrix4x4::UP);
     if(glfwGetKey(this->_window, GLFW_KEY_S) == GLFW_PRESS)
+      matrix.rotateX(Matrix4x4::UP);
+    if(glfwGetKey(this->_window, GLFW_KEY_W) == GLFW_PRESS)
       matrix.rotateX(Matrix4x4::DOWN);
     if(glfwGetKey(this->_window, GLFW_KEY_D) == GLFW_PRESS)
       matrix.rotateY(Matrix4x4::UP);
@@ -289,6 +289,10 @@ void Application::mainloop(Object& obj)
       matrix.zoomMatrix(Matrix4x4::UP);
     if(glfwGetKey(this->_window, GLFW_KEY_X) == GLFW_PRESS)
       matrix.zoomMatrix(Matrix4x4::DOWN);
+    if(glfwGetKey(this->_window, GLFW_KEY_I) == GLFW_PRESS)
+      matrix.translateZ(Matrix4x4::UP);
+    if(glfwGetKey(this->_window, GLFW_KEY_O) == GLFW_PRESS)
+      matrix.translateZ(Matrix4x4::DOWN);
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
