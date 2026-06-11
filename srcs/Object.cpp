@@ -1,4 +1,5 @@
 #include "Object.hpp"
+#include <climits>
 #include <sstream>
 #include <stdexcept>
 
@@ -16,6 +17,7 @@ Object::Object(const std::string& fileName)
 
 	parseFile(file);
 	file.close();
+  normalizeCenter(_v);
 }
 
 bool checkFileType(const std::string& name, const std::string& type)
@@ -36,7 +38,10 @@ void	Object::parseFile(std::fstream& file)
 			std::string word;
 
 			if (line.str().size() == 0 || line.str().at(0) == '#')
+      {
+        line_count++;
 				continue ;
+      }
 			line >> word;
 			if (word == "v")
 				vec3Collect(line, _v);
@@ -244,6 +249,44 @@ std::vector<float>        Object::getVertexs(void) const
   //     std::cout << std::endl;
   // }
   return res;
+}
+
+#include <float.h>
+
+void normalizeCenter(std::vector<t_vec3>& v)
+{
+  float minX = FLT_MAX;
+  float maxX = FLT_MIN;
+  float minY = FLT_MAX;
+  float maxY = FLT_MIN;
+  float minZ = FLT_MAX;
+  float maxZ = FLT_MIN;
+  for (std::vector<t_vec3>::iterator it = v.begin(); it != v.end(); it++)
+  {
+    if (it->x < minX)
+      minX = it->x;
+    if (it->x > maxX)
+      maxX = it->x;
+
+    if (it->y < minY)
+      minY = it->y;
+    if (it->y > maxY)
+      maxY = it->y;
+
+    if (it->z < minZ)
+      minZ = it->z;
+    if (it->z > maxZ)
+      maxZ = it->z;
+  }
+  float centerX = (maxX + minX) / 2;
+  float centerY = (maxY + minY) / 2;
+  float centerZ = (maxZ + minZ) / 2;
+  for (std::vector<t_vec3>::iterator it = v.begin(); it != v.end(); it++)
+  {
+    it->x -= centerX;
+    it->y -= centerY;
+    it->z -= centerZ;
+  }
 }
 
 std::vector<unsigned int> Object::getIndices(void) const
