@@ -18,7 +18,7 @@ private:
   float _angleZ{};
   float _moveX{};
   float _moveY{};
-  float _moveZ{};
+  float _moveZ{-0.5};
   float _zoom{0.1};
 
   float _moveScale;
