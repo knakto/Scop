@@ -7,7 +7,7 @@ SRC_DIR := srcs
 INC_DIR := include
 OBJ_DIR := obj
 
-FILES := main.cpp Application.cpp RotationMatrix.cpp Object.cpp
+FILES := main.cpp Application.cpp RotationMatrix.cpp Object.cpp Image.cpp
 
 INC  = -I$(INC_DIR)
 SRC  = $(addprefix $(SRC_DIR)/, $(FILES))

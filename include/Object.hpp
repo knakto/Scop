@@ -1,6 +1,7 @@
 #pragma once
 
 # include <algorithm>
+# include "Image.hpp"
 # include <iostream>
 # include <sstream>
 # include <fstream>
@@ -20,6 +21,13 @@ struct t_vec2
   float x, y;
 };
 
+struct t_texture
+{
+  std::vector<unsigned char>  data;
+  int                         height;
+  int                         width;
+};
+
 class Object{
 private:
   std::vector<t_vec3>                           _v;
@@ -31,8 +39,9 @@ private:
   Object(void);
   void	parseFile(std::fstream& file);
 public:
-  Object(const std::string& fileName);
+  Object(const std::string& fileName, const std::string& textureName);
   ~Object(void);
+  t_texture                                     _texture;
 
   std::vector<float>        getVertexs(void) const;
   std::vector<unsigned int> getIndices(void) const;

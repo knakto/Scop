@@ -3,17 +3,17 @@
 // #include "ObjectData.hpp"
 #include "Application.hpp"
 #include "Object.hpp"
+#include "Image.hpp"
 
 int main(int c, char **v)
 {
-  if (c != 2)
+  if (c != 3)
   {
-    std::cerr << "usage: ./scop <filename>.obj" << std::endl;
+    std::cerr << "usage: ./scop <filename>.obj <texturefile>.bmp" << std::endl;
     return 1;
   }
   try{
-    Object obj(v[1]);
-    // ObjectData *obj = new ObjectData(v[1]);
+    Object obj(v[1], v[2]);
     Application *app = new Application("scop", 1920, 1080);
 
     app->run(obj);

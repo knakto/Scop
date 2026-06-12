@@ -1,10 +1,11 @@
 #include "Object.hpp"
+#include "Image.hpp"
 #include <climits>
 #include <sstream>
 #include <stdexcept>
 
 Object::~Object(void) {}
-Object::Object(const std::string& fileName)
+Object::Object(const std::string& fileName, const std::string& textureName)
 {
 	std::fstream	file;
 
@@ -18,6 +19,11 @@ Object::Object(const std::string& fileName)
 	parseFile(file);
 	file.close();
   normalizeCenter(_v);
+
+  unsigned char* bmp = loadBMP(textureName, _texture.height, _texture.width);
+  int dataSize = _texture.width * _texture.height * 3;
+  _texture.data.assign(bmp, bmp + dataSize);
+  delete[] bmp;
 }
 
 bool checkFileType(const std::string& name, const std::string& type)
@@ -60,10 +66,10 @@ void	Object::parseFile(std::fstream& file)
 				invalidFormat(line_count);
 			line_count++;
 		}
-	} catch ( const std::exception& e )
+	} catch ( const std::runtime_error& e )
 	{
 		file.close();
-		throw std::runtime_error(e.what());
+		throw e;
 	}
 }
 

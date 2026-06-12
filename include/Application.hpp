@@ -37,6 +37,7 @@ void main()
 in vec2 TexCoord;
 in vec3 Normal;
 out vec4 FragColor;
+uniform sampler2D texture1;
 void main()
 {
   // =========================================================
@@ -54,7 +55,8 @@ void main()
     // เหตุผล: เวกเตอร์วิ่งจาก -1 ถึง 1 เราเลยปรับสมการให้กลายเป็นสี 0 ถึง 1
     // =========================================================
     vec3 normalColor = normalize(Normal) * 0.5 + 0.5;
-    FragColor = vec4(normalColor, 1.0);
+    // FragColor = vec4(normalColor, 1.0);
+    FragColor = texture(texture1, TexCoord);
     return;
   // vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0)); 
   //
@@ -84,13 +86,14 @@ private:
   GLuint _vao; // vertex array object
   GLuint _vbo; // vertex buffer object
   GLuint _ebo; // element buffer object
-  GLuint _cbo;
+  GLuint _texture;
 
   void initWindow(void);
   void initGL(Object& obj);
   void mainloop(Object& obj);
   void clean(void);
   void setupVAO(Object& obj);
+  void setupTexture(Object& obj);
 public:
   const char  *_name;
   std::size_t _width;
