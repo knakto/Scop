@@ -14,8 +14,6 @@
 # define MYSHADER
 # define VERTEXT_SRC R"(#version 450 core
 layout (location = 0) in vec3 aPos;
-// layout (location = 1) in vec3 aColor;
-// layout (location = 0) out vec3 oColor;
 layout (location = 2) in vec2 aTex;
 layout (location = 3) in vec3 aNormal;
 
@@ -24,56 +22,62 @@ out vec3 Normal;
 uniform mat4 matrix;
 void main()
 {
-   gl_Position = matrix * vec4(aPos, 1.0);
-   // oColor = aColor;
-   // ส่งข้อมูลดิบผ่านทะลุไปเลย
+    gl_Position = matrix * vec4(aPos, 1.0);
     TexCoord = aTex;
-    
-    // ทริค: หมุน Normal ไปตามโมเดลด้วย เพื่อให้แสงเงาหมุนตาม (ใช้ matrix ไปก่อนได้สำหรับเทสเบื้องต้น)
     Normal = mat3(matrix) * aNormal;
 })"
 # define FRAGMENT_SRC R"(#version 450 core
-// layout (location = 0) in vec3 color;
 in vec2 TexCoord;
 in vec3 Normal;
 out vec4 FragColor;
-uniform sampler2D texture1;
+uniform sampler2D texture_image;
+uniform int mode;
+uniform vec3 lightPos;
+uniform vec3 objectColor;
 void main()
 {
-  // =========================================================
-    // โหมด 1: เทส UV (vt)
-    // ผลลัพธ์ที่ควรได้: โมเดลจะมีสี แดง-เขียว-เหลือง ไล่เฉดไปมา
-    // เหตุผล: เราเอาแกน U ไปใส่สีแดง (X) และ V ไปใส่สีเขียว (Y)
-    // =========================================================
-    // FragColor = vec4(TexCoord.x, TexCoord.y, 0.0, 1.0);
-    // return; 
-
-
-    // =========================================================
-    // โหมด 2: เทส Normal (vn) แบบ Color Mapping
-    // ผลลัพธ์ที่ควรได้: หน้าที่หันไปทางขวา=สีแดง, ชี้ขึ้นบน=สีเขียว, หันเข้าหากล้อง=สีฟ้า
-    // เหตุผล: เวกเตอร์วิ่งจาก -1 ถึง 1 เราเลยปรับสมการให้กลายเป็นสี 0 ถึง 1
-    // =========================================================
+  if (mode == 1)
+    FragColor = vec4(TexCoord.x, TexCoord.y, 0.0, 1.0);
+  else if (mode == 2)
+    FragColor = texture(texture_image, TexCoord);
+  else if (mode == 3)
+  {
     vec3 normalColor = normalize(Normal) * 0.5 + 0.5;
-    // FragColor = vec4(normalColor, 1.0);
-    FragColor = texture(texture1, TexCoord);
-    return;
-  // vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0)); 
-  //
-  //   // Normal ต้องยาว 1 หน่วยเสมอ
-  //   vec3 norm = normalize(Normal);
-  //
-  //   // หาค่าการชนของแสง (Dot Product)
-  //   float diff = max(dot(norm, lightDir), 0.0);
-  //
-  //   // กำหนดสีโมเดลเป็นสีเทาอ่อน (0.8)
-  //   vec3 objectColor = vec3(0.8, 0.8, 0.8);
-  //
-  //   // แสงตกกระทบ (diff) + แสงพยุงในเงามืด (ambient = 0.2)
-  //   vec3 finalColor = objectColor * (diff + 0.2);
-  //
-  //   FragColor = vec4(finalColor, 1.0);
-   // FragColor = vec4(1.0f);
+    FragColor = vec4(normalColor, 1.0);
+  }
+  else if (mode == 4)
+  {
+    vec3 lightDir = normalize(lightPos); 
+    vec3 norm = normalize(Normal);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 finalColor = objectColor * (diff + 0.2);
+    FragColor = vec4(finalColor, 1.0);
+  }
+  else
+  {
+    int faceIndex = gl_PrimitiveID;
+    int colorMod = faceIndex % 10;
+    if (colorMod == 0)
+      FragColor = vec4(0.1, 0.1, 0.1, 1);
+    else if (colorMod == 1)
+      FragColor = vec4(0.2, 0.2, 0.2, 1);
+    else if (colorMod == 2)
+      FragColor = vec4(0.3, 0.3, 0.3, 1);
+    else if (colorMod == 3)
+      FragColor = vec4(0.4, 0.4, 0.4, 1);
+    else if (colorMod == 4)
+      FragColor = vec4(0.5, 0.5, 0.5, 1);
+    else if (colorMod == 5)
+      FragColor = vec4(0.6, 0.6, 0.6, 1);
+    else if (colorMod == 6)
+      FragColor = vec4(0.7, 0.7, 0.7, 1);
+    else if (colorMod == 7)
+      FragColor = vec4(0.8, 0.8, 0.8, 1);
+    else if (colorMod == 8)
+      FragColor = vec4(0.9, 0.9, 0.9, 1);
+    else
+      FragColor = vec4(1, 1, 1, 1);
+  }
 })"
 #endif
 
