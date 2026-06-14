@@ -155,7 +155,7 @@ void faceCollect(std::istringstream& line, std::vector<std::vector<std::vector<i
     if (v.size() > 3)
       throw std::runtime_error("face must have only 3 argument v/vt/vn.");
 
-    for (int i = 0; i < 3; i++)
+    for (unsigned int i = 0; i < 3; i++)
     {
       std::stringstream ss;
       int               number;
@@ -168,7 +168,7 @@ void faceCollect(std::istringstream& line, std::vector<std::vector<std::vector<i
       {
         if (v[i].empty())
           throw std::runtime_error("face musbe number integer and not minus");
-        for (int j = 0; j < v[i].length(); j++)
+        for (unsigned int j = 0; j < v[i].length(); j++)
           if (!(v[i][j] >= '0' && v[i][j] <= '9'))
             throw std::runtime_error("face musbe number integer and not minus");
       }
