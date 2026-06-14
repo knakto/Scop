@@ -140,7 +140,8 @@ void Application::setupTexture(Object& obj)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, obj._texture.width, obj._texture.height, 0, GL_RGB, GL_UNSIGNED_BYTE, obj._texture.data.data());
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, obj._texture.width,
+  obj._texture.height, 0, GL_RGB, GL_UNSIGNED_BYTE, obj._texture.data.data());
   glGenerateMipmap(GL_TEXTURE_2D);
 }
 
@@ -175,51 +176,88 @@ void Application::setupVAO(Object& obj)
   glBindVertexArray(_vao);
 }
 
-void userInput(GLFWwindow *window, Matrix4x4& matrix)
+void userInput(GLFWwindow *window, Matrix4x4& matrix, int& mode)
 {
-    if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-      glfwSetWindowShouldClose(window, true);
-    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-      matrix.rotateX(Matrix4x4::UP);
-    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-      matrix.rotateX(Matrix4x4::DOWN);
-    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-      matrix.rotateY(Matrix4x4::UP);
-    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-      matrix.rotateY(Matrix4x4::DOWN);
-    if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-      matrix.translateY(Matrix4x4::UP);
-    if(glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-      matrix.translateY(Matrix4x4::DOWN);
-    if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-      matrix.translateX(Matrix4x4::UP);
-    if(glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
-      matrix.translateX(Matrix4x4::DOWN);
-    if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-      matrix.zoomMatrix(Matrix4x4::UP);
-    if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-      matrix.zoomMatrix(Matrix4x4::DOWN);
-    if(glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
-      matrix.translateZ(Matrix4x4::UP);
-    if(glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
-      matrix.translateZ(Matrix4x4::DOWN);
+  if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+    glfwSetWindowShouldClose(window, true);
+  if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    matrix.rotateX(Matrix4x4::UP);
+  if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    matrix.rotateX(Matrix4x4::DOWN);
+  if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    matrix.rotateY(Matrix4x4::UP);
+  if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    matrix.rotateY(Matrix4x4::DOWN);
+  if(glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+    matrix.translateY(Matrix4x4::UP);
+  if(glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+    matrix.translateY(Matrix4x4::DOWN);
+  if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+    matrix.translateX(Matrix4x4::UP);
+  if(glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
+    matrix.translateX(Matrix4x4::DOWN);
+  if(glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+    matrix.zoomMatrix(Matrix4x4::UP);
+  if(glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+    matrix.zoomMatrix(Matrix4x4::DOWN);
+  if(glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+    matrix.translateZ(Matrix4x4::UP);
+  if(glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+    matrix.translateZ(Matrix4x4::DOWN);
+  if(glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+    mode = 1;
+  if(glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+    mode = 2;
+  if(glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+    mode = 3;
+  if(glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
+    mode = 4;
+  if(glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
+    mode = 0;
 }
 
 void Application::mainloop(Object& obj)
 {
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   Matrix4x4 matrix{1, 1, 0.01};
-  int size = obj.getIndices().size();
+  int       mode = 0;
+  bool      lastPressU = false;
+  bool      lastPressC = false;
+  bool      around = true;
+  int       size = obj.getIndices().size();
   while (!glfwWindowShouldClose(this->_window))
   {
-    userInput(_window, matrix);
+    userInput(_window, matrix, mode);
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    bool pressU = (glfwGetKey(_window, GLFW_KEY_U) == GLFW_PRESS);
+    if(pressU && !lastPressU)
+    {
+      if (mode == 4)
+        mode = 0;
+      else if (mode == 0)
+        mode = 4;
+    }
+    lastPressU = pressU;
+    
+    bool pressC = (glfwGetKey(_window, GLFW_KEY_C) == GLFW_PRESS);
+    if (around)
+      matrix.rotateY(Matrix4x4::DOWN);
+    if (pressC && !lastPressC)
+      around = !around;
+    lastPressC = pressC;
+
     matrix.calculateMatrix();
 
-    int matrixLoc = glGetUniformLocation(this->_shaderProgram, "matrix");
+    GLint matrixLoc = glGetUniformLocation(this->_shaderProgram, "matrix");
     glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, matrix);
+    GLint modeLoc = glGetUniformLocation(this->_shaderProgram, "mode");
+    glUniform1i(modeLoc, mode);
+    GLint objectColorLoc = glGetUniformLocation(this->_shaderProgram, "objectColor");
+    glUniform3f(objectColorLoc, 0.8, 0.8, 0.8);
+    GLint lightPosLoc = glGetUniformLocation(this->_shaderProgram, "lightPos");
+    glUniform3f(lightPosLoc, -0.5, 0.5, -0.5);
 
     glDrawElements(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr);
     glfwSwapBuffers(this->_window);
