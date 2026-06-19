@@ -116,7 +116,7 @@ static void initShaderProgram(const char *vertexShaderSource,
     if (length == 0)
       throw std::runtime_error("Compile shader failed, with no log.");
     std::string log(length, 0);
-    glGetProgramInfoLog(*shaderProgram, length, nullptr, log.data());
+    glGetProgramInfoLog(*shaderProgram, length, nullptr, (char*)log.data());
     throw std::runtime_error("Compile shader failed: \n" + log);
   }
 
@@ -138,7 +138,7 @@ static GLuint compile_shader(GLenum type, const char *shaderSource) {
     if (length == 0)
       throw std::runtime_error("Compile shader failed, with no log.");
     std::string log(length, 0);
-    glGetShaderInfoLog(shader, length, nullptr, log.data());
+    glGetShaderInfoLog(shader, length, nullptr, (char*)log.data());
     throw std::runtime_error("Compile shader failed: \n" + log);
   }
 
