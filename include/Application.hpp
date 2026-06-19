@@ -54,7 +54,7 @@ void main()
       texture_color = texture(material.map, TexCoord).rgb;
     else
       texture_color = vec3(1, 1, 1);
-    vec3 lightAmbient = vec3(1, 1, 1);
+    vec3 lightAmbient = vec3(0.3, 0.3, 0.3);
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos);
     float diff = max(dot(norm, lightDir), 0.0);
@@ -65,12 +65,7 @@ void main()
     FragColor = vec4(texture_color, 1) * vec4(ambient + finalColor, 1);
   }
   else if (mode == 2)
-  {
-    // if (is_enable_texture == 1)
     FragColor = texture(material.map, TexCoord);
-    // else
-      // FragColor = vec4(1);
-  }
   else if (mode == 3)
   {
     vec3 normalColor = normalize(Normal) * 0.5 + 0.5;
@@ -138,6 +133,7 @@ private:
   void clean(void);
   void setupVAO(void);
   void setupTexture(void);
+  void setupCallback(void);
 public:
 
   Application(void)
