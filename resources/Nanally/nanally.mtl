@@ -1,0 +1,102 @@
+# Blender 4.2.2 LTS MTL File: 'nanally.blend'
+# www.blender.org
+
+newmtl MI_common_face_mask
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/common_face_d.png
+
+newmtl MI_player_010_eyelash
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/T_player_010_nanally_face_d.png
+
+newmtl MI_player_010_female_cloth_a
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/T_player_010_nanally_02_d.png
+
+newmtl MI_player_010_female_cloth_b
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/T_player_010_nanally_01_d.png
+
+newmtl MI_player_010_female_hair_a
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/T_player_010_nanally_hair_01_d.png
+
+newmtl MI_player_010_female_hair_b
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/T_player_010_nanally_hair_02_d.png
+
+newmtl MI_player_010_gaoguang
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd textures/T_player_010_nanally_face_d.png
+map_d textures/T_player_010_nanally_face_d.png
+
+newmtl MI_player_010_nanally_eyes
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/T_player_010_nanally_eyes_d.png
+
+newmtl MI_player_010_nanally_face
+Ns 360.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd textures/T_player_010_nanally_face_d.png
+
+newmtl MI_player_010_nanally_fashion1_cloth_a
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+illum 2
+map_Kd textures/T_player_010_nanally_01_d.png
+map_d textures/T_player_010_nanally_01_d.png
