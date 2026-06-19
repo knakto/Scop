@@ -1,9 +1,6 @@
 #include <exception>
 #include <iostream>
-// #include "ObjectData.hpp"
 #include "Application.hpp"
-#include "Object.hpp"
-#include "Image.hpp"
 
 int main(int c, char **v)
 {
