@@ -29,7 +29,7 @@ $(OBJ_DIR):
 -include $(DEP)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp Makefile | $(OBJ_DIR)
-	c++ $(FLAGS) -c $< $(INC) -o $@
+	c++ $(CFLAGS) -c $< $(INC) -o $@
 
 clean:
 	$(RM) $(OBJ_DIR)
