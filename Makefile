@@ -14,7 +14,7 @@ SRC  = $(addprefix $(SRC_DIR)/, $(FILES))
 OBJ  = $(addprefix $(OBJ_DIR)/, $(FILES:%.cpp=%.o))
 DEP  = $(OBJ:%.o=%.d)
 
-CFLAGS := -MMD -MP -g -Wall -Wextra -Werror -Wpedantic
+CFLAGS := -MMD -MP -g -Wall -Wextra -Werror -Wpedantic -DOUTSTANDING
 VKFLAGS := -lglfw -lGLEW -lGL
 FLAGS = $(VKFLAGS) $(CFLAGS)
 
