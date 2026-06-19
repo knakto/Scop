@@ -328,17 +328,11 @@ std::vector<int>            Object::getMaterialNumber(void) const
   for (std::vector<t_object_group>::const_iterator group = _objInfo.__group.begin();
   group != _objInfo.__group.end(); group++)
   {
-    std::cout << "this: " << group->__mtlName << std::endl;
     int count = 0;
     for (t_materials::const_iterator it = _meterial.begin(); it != _meterial.end(); it++)
     {
       if (it->__name == group->__mtlName)
-         {
-    std::cout << "have: " << it->__name << std::endl;
-    std::cout << "at: " << count << std::endl;
-        
         res.push_back(count);
-      }
       else
         count++;
     }
@@ -621,4 +615,9 @@ void	Object::parseFileMtl(std::fstream& file)
 		file.close();
 		throw e;
 	}
+}
+
+Transform& Object::getTransform(void)
+{
+  return _transform;
 }
