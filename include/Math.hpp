@@ -1,9 +1,11 @@
 #pragma once
 
 # include <iostream>
+#include <ostream>
 #include <stdexcept>
 # include <vector>
 # include <cmath>
+
 
 struct t_vec3
 {
@@ -39,16 +41,44 @@ struct t_vec2
 */
 struct t_mat4
 {
-  float m[4][4];
+  float m[16];
   t_mat4()
   {
     for (int col = 0; col < 4; col++)
       for (int row = 0; row < 4; row++)
-        m[col][row] = (col == row) ? 1 : 0;
+        m[col * 4 + row] = (col == row) ? 1 : 0;
   }
-  float* operator[](int row) {return m[row];}
-  const float* operator[](int row) const {return m[row];}
+  float& operator[](int row) {
+    return m[row];
+  }
+  const float& operator[](int row) const {
+    return m[row];
+  }
+  t_mat4 operator*(const t_mat4& second)
+  {
+    t_mat4 res;
+
+    for (int col = 0; col < 4; col++)
+      for (int row = 0; row < 4; row++)
+        res[row + col * 4]
+          = (m[col + 0] * second[row + 0])
+          + (m[col + 4] * second[row + 4])
+          + (m[col + 8] * second[row + 8])
+          + (m[col + 12] * second[row + 12]);
+    return res;
+  }
+  void print(void)
+  {
+    for (int col = 0; col < 4; col++)
+    {
+      std::cout << "[ ";
+      for (int row = 0; row < 4; row++)
+        std::cout << m[col * 4 + row] << " ";
+      std::cout << "]" << std::endl;
+    }
+  }
 };
+
 
 class Math
 {
@@ -68,14 +98,6 @@ public:
 
   static float dot_vec3(const t_vec3& vec_a, const t_vec3& vec_b)
   {
-    if (std::isnan(vec_a.x) || vec_a.x > 10000.0f || vec_a.x < -10000.0f) {
-        std::cout << "🚨 จับได้แล้ว! vec_a มีค่าขยะ: " << vec_a.x << ", " << vec_a.y << ", " << vec_a.z << std::endl;
-        throw std::runtime_error("hah");
-    }
-    if (std::isnan(vec_b.x) || vec_b.x > 10000.0f || vec_b.x < -10000.0f) {
-        std::cout << "🚨 จับได้แล้ว! vec_b มีค่าขยะ: " << vec_b.x << ", " << vec_b.y << ", " << vec_b.z << std::endl;
-        throw std::runtime_error("hah");
-    }
     t_vec3 norm_a{vec_a.x, vec_a.y, vec_a.z};
     t_vec3 norm_b{vec_b.x, vec_b.y, vec_b.z};
     normalize_vec3(norm_a);
@@ -91,23 +113,5 @@ public:
         vec.y /= length;
         vec.z /= length;
     }
-  }
-
-  static t_mat4 multiply_mat4(const t_mat4& first, const t_mat4& second) 
-  {
-    t_mat4 res;
-
-    for (int row = 0; row < 4; row++)
-    {
-      for (int col = 0; col < 4; col++)
-      {
-        res[col * 4][row]
-          = (first[0][row] * second[(col * 4)][0])
-          + (first[4][row] * second[(col * 4)][1])
-          + (first[8][row] * second[(col * 4)][2])
-          + (first[12][row] * second[(col * 4)][3]);
-      }
-    }
-    return res;
   }
 };
