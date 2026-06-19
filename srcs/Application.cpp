@@ -7,6 +7,7 @@
 #include "Application.hpp"
 #include "Object.hpp"
 #include "RotationMatrix.hpp"
+#include "Transform.hpp"
 #include <GLFW/glfw3.h>
 #include <vector>
 
@@ -206,43 +207,130 @@ void Application::setupVAO(void) {
   glBindVertexArray(_appInfo.__vao);
 }
 
-void userInput(GLFWwindow *window, Matrix4x4 &matrix, int &mode) {
+void userInput(GLFWwindow *window, Transform &matrix) {
   if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    matrix.rotateX(Matrix4x4::UP);
+    matrix.rotateUP(Transform::X_AXIS);
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    matrix.rotateX(Matrix4x4::DOWN);
+    matrix.rotateDOWN(Transform::X_AXIS);
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    matrix.rotateY(Matrix4x4::UP);
+    matrix.rotateUP(Transform::Y_AXIS);
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    matrix.rotateY(Matrix4x4::DOWN);
+    matrix.rotateDOWN(Transform::Y_AXIS);
   if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
-    matrix.translateY(Matrix4x4::UP);
+    matrix.moveUp();
   if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-    matrix.translateY(Matrix4x4::DOWN);
+    matrix.moveDown();
   if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-    matrix.translateX(Matrix4x4::UP);
+    matrix.moveRight();
   if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
-    matrix.translateX(Matrix4x4::DOWN);
-  if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-    matrix.zoomMatrix(Matrix4x4::UP);
-  if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-    matrix.zoomMatrix(Matrix4x4::DOWN);
+    matrix.moveLeft();
   if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
-    matrix.translateZ(Matrix4x4::UP);
+    matrix.moveFront();
   if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
-    matrix.translateZ(Matrix4x4::DOWN);
-  if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-    mode = 1;
-  if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-    mode = 2;
-  if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-    mode = 3;
-  if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
-    mode = 4;
-  if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
-    mode = 0;
+    matrix.moveBack();
+  if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+    matrix.scaleUp();
+  if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+    matrix.scaleDown();
+}
+
+void keyCallbackWrapper(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+  (void)scancode;
+  (void)mods;
+  Transform* transform = static_cast<Transform*>(glfwGetWindowUserPointer(window));
+
+  if (key == GLFW_KEY_T && action == GLFW_PRESS) {
+    transform->_var.isWireFrame = !transform->_var.isWireFrame;
+    if (transform->_var.isWireFrame)
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
+  if (key == GLFW_KEY_U && action == GLFW_PRESS) {
+    if (transform->_var.mode == 4)
+      transform->_var.mode = 0;
+    else if (transform->_var.mode == 0)
+      transform->_var.mode = 4;
+  }
+  if (key == GLFW_KEY_0 && action == GLFW_PRESS)
+    transform->_var.mode = 0;
+  if (key == GLFW_KEY_1 && action == GLFW_PRESS)
+    transform->_var.mode = 1;
+  if (key == GLFW_KEY_2 && action == GLFW_PRESS)
+    transform->_var.mode = 2;
+  if (key == GLFW_KEY_3 && action == GLFW_PRESS)
+    transform->_var.mode = 3;
+  if (key == GLFW_KEY_4 && action == GLFW_PRESS)
+    transform->_var.mode = 4;
+  if (key == GLFW_KEY_C && action == GLFW_PRESS)
+    transform->_var.isSpin = !transform->_var.isSpin;
+}
+
+void scrollCallbackWrapper(GLFWwindow* window, double xoffset, double yoffset)
+{
+  (void)xoffset;
+  Transform* transform = static_cast<Transform*>(glfwGetWindowUserPointer(window));
+  float scale = transform->getMove(Transform::Z_AXIS) * 0.1;
+  transform->move(Transform::Z_AXIS, -(yoffset * scale));
+}
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+  (void)mods;
+  Transform* transform = static_cast<Transform*>(glfwGetWindowUserPointer(window));
+  if (button == GLFW_MOUSE_BUTTON_LEFT)
+  {
+    if (action == GLFW_PRESS)
+    {
+      transform->_var.mouseClick = true;
+      glfwGetCursorPos(window, (double*)&transform->_var.mousePosX, (double*)&transform->_var.mousePosY);
+    }
+    else
+      transform->_var.mouseClick = false;
+
+  }
+  if (button == GLFW_MOUSE_BUTTON_RIGHT)
+  {
+    if (action == GLFW_PRESS)
+    {
+      transform->_var.mouseClick = true;
+      transform->_var.notRotate = true;
+      glfwGetCursorPos(window, (double*)&transform->_var.mousePosX, (double*)&transform->_var.mousePosY);
+    }
+    else
+    {
+      transform->_var.mouseClick = false;
+      transform->_var.notRotate = false;
+    }
+
+  }
+}
+
+void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
+  Transform* transform = static_cast<Transform*>(glfwGetWindowUserPointer(window));
+  if (transform->_var.mouseClick)
+  {
+    double deltaX = xpos - transform->_var.mousePosX;
+    double deltaY = ypos - transform->_var.mousePosY;
+
+    transform->_var.mousePosX = xpos;
+    transform->_var.mousePosY = ypos;
+    if (!transform->_var.notRotate)
+    {
+      float sensitivity = 0.2f;
+      transform->rotate(Transform::Y_AXIS, deltaX * sensitivity);
+      transform->rotate(Transform::X_AXIS, deltaY * sensitivity);
+    }
+    else
+    {
+      float sensitivity = transform->getMove(Transform::Z_AXIS) * -0.001f;
+      transform->move(Transform::X_AXIS, deltaX * sensitivity);
+      transform->move(Transform::Y_AXIS, deltaY * -sensitivity);
+    }
+  }
 }
 
 void sendMaterial(t_material mtl, GLuint shaderProgram, GLuint textureID)
@@ -261,55 +349,54 @@ void sendMaterial(t_material mtl, GLuint shaderProgram, GLuint textureID)
               mtl.__map_Kd.__scale.x, mtl.__map_Kd.__scale.y);
 }
 
-void Application::mainloop(void) {
+void sendUniform(Transform& transform, GLuint shaderProgram)
+{
+  glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "matrix"),
+                     1, GL_TRUE, &transform.getMP()[0]);
+  glUniform1i(glGetUniformLocation(shaderProgram, "mode"),
+              transform._var.mode);
+  glUniform3f(glGetUniformLocation(shaderProgram, "objectColor"),
+              0.8, 0.8, 0.8);
+  glUniform3f(glGetUniformLocation(shaderProgram, "lightPos"),
+              -0.5, 0.5, -0.5);
+}
+
+void animation(Transform& transform)
+{
+  if (transform._var.isSpin)
+    transform.rotateDOWN(Transform::Y_AXIS);
+}
+
+void Application::setupCallback(void)
+{
+  glfwSetWindowUserPointer(_appInfo.__window, &this->_obj->getTransform());
+  glfwSetKeyCallback(_appInfo.__window, keyCallbackWrapper);
+  glfwSetScrollCallback(_appInfo.__window, scrollCallbackWrapper);
+  glfwSetMouseButtonCallback(_appInfo.__window, mouseButtonCallback);
+  glfwSetCursorPosCallback(_appInfo.__window, cursorPosCallback);
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-  Matrix4x4 matrix{1, 1, 0.01};
-  int mode = 0;
-  bool lastPressU = false;
-  bool lastPressC = false;
-  bool around = true;
+}
+
+void Application::mainloop(void) {
+  setupCallback();
   std::vector<unsigned int> sizes = _obj->getSizeOfEachIndices();
   std::vector<int>  textureNumberID = _obj->getMaterialNumber();
   t_materials material = _obj->getMaterialList();
   while (!glfwWindowShouldClose(_appInfo.__window)) {
-    userInput(_appInfo.__window, matrix, mode);
+    userInput(_appInfo.__window, _obj->getTransform());
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    bool pressU = (glfwGetKey(_appInfo.__window, GLFW_KEY_U) == GLFW_PRESS);
-    if (pressU && !lastPressU) {
-      if (mode == 4)
-        mode = 0;
-      else if (mode == 0)
-        mode = 4;
-    }
-    lastPressU = pressU;
-
-    bool pressC = (glfwGetKey(_appInfo.__window, GLFW_KEY_C) == GLFW_PRESS);
-    if (around)
-      matrix.rotateY(Matrix4x4::DOWN);
-    if (pressC && !lastPressC)
-      around = !around;
-    lastPressC = pressC;
-
-    matrix.calculateMatrix();
-
-    GLint matrixLoc = glGetUniformLocation(_appInfo.__shaderProgram, "matrix");
-    glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, matrix);
-    GLint modeLoc = glGetUniformLocation(_appInfo.__shaderProgram, "mode");
-    glUniform1i(modeLoc, mode);
-    GLint objectColorLoc =
-        glGetUniformLocation(_appInfo.__shaderProgram, "objectColor");
-    glUniform3f(objectColorLoc, 0.8, 0.8, 0.8);
-    GLint lightPosLoc =
-        glGetUniformLocation(_appInfo.__shaderProgram, "lightPos");
-    glUniform3f(lightPosLoc, -0.5, 0.5, -0.5);
+    sendUniform(_obj->getTransform(), _appInfo.__shaderProgram);
+    animation(_obj->getTransform());
 
     int sumIndicesSize = 0;
     for (size_t index = 0; index < sizes.size(); index++)
     {
-      sendMaterial(material.at(textureNumberID.at(index)), _appInfo.__shaderProgram, _appInfo.__tbo.at(textureNumberID.at(index)));
-      glDrawElements(GL_TRIANGLES, sizes.at(index), GL_UNSIGNED_INT, (void*)(sumIndicesSize * sizeof(unsigned int)));
+      sendMaterial(material.at(textureNumberID.at(index)), _appInfo.__shaderProgram,
+                   _appInfo.__tbo.at(textureNumberID.at(index)));
+      glDrawElements(GL_TRIANGLES, sizes.at(index), GL_UNSIGNED_INT,
+                     (void*)(sumIndicesSize * sizeof(unsigned int)));
       sumIndicesSize += sizes.at(index);
       glBindTexture(GL_TEXTURE_2D, 0);
     }
@@ -320,8 +407,10 @@ void Application::mainloop(void) {
 void Application::clean(void) {
   glDeleteVertexArrays(1, &_appInfo.__vao);
   glDeleteBuffers(1, &_appInfo.__vbo);
-  // glDeleteBuffers(1, &_appInfo.__ebo);
+  glDeleteBuffers(1, &_appInfo.__ebo);
   glDeleteProgram(_appInfo.__shaderProgram);
+
+  glDeleteTextures(_appInfo.__tbo.size(), _appInfo.__tbo.data());
 
   glfwDestroyWindow(_appInfo.__window);
   glfwTerminate();
