@@ -1,0 +1,136 @@
+# Blender 4.2.2 LTS MTL File: 'blackbird.blend'
+# www.blender.org
+
+newmtl MI_player_042_Blackbird_01
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_01_d.png
+
+newmtl MI_player_042_Blackbird_02
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_02_d.png
+map_Bump -bm 1.000000 Texture/T_player_042_Blackbird_02_n.png
+
+newmtl MI_player_042_Blackbird_03
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_yumao_d.png
+
+newmtl MI_player_042_Blackbird_05
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_05_d.png
+map_Bump -bm 1.000000 Texture/T_player_042_Blackbird_05_n.png
+
+newmtl MI_player_042_Blackbird_hair_01
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_hair1_d.png
+
+newmtl MI_player_042_Blackbird_hair_02
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_hair2_d.png
+
+newmtl MI_player_042_Blackbird_siwa
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_01_d.png
+map_Bump -bm 1.000000 Texture/T_player_042_Blackbird_01_n.png
+
+newmtl MI_player_042_Blackbird_yumao_06
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_yumao_06.png
+map_Bump -bm 1.000000 Texture/player_042_Blackbird_n.png
+
+newmtl MI_player_043_alphard_eyelash
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_face_r.png
+
+newmtl MI_player_043_alphard_eyes
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_eyes_d.png
+
+newmtl MI_player_043_alphard_face
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_face_d.png
+
+newmtl MI_player_043_alphard_gaoguang
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_yumao_gaoguang.png
+
+newmtl eye_bantou
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd Texture/T_player_042_Blackbird_eyes_d.png
