@@ -95,6 +95,7 @@ public:
   std::vector<unsigned int>   getSizeOfEachIndices(void) const;
   t_materials                 getMaterialList(void) const;
   std::vector<int>            getMaterialNumber(void) const;
+  Transform&                  getTransform(void);
 };
 
 bool        checkFileType(const std::string& name, const std::string& type);
