@@ -11,6 +11,60 @@
 std::vector<std::vector<std::vector<int> > >
 earClipping(std::vector<std::vector<int> > face, const std::vector<t_vec3>& vertex);
 
+void Object::printAll(void)
+{
+  std::cout << "--- name --" << std::endl;
+  std::cout << "object name: " << _objInfo.__name << std::endl;
+  std::cout << "--- v ---" << std::endl;
+  for (auto v: _objInfo.__v)
+    std::cout << "v: " << v << std::endl;
+  std::cout << "--- f ---" << std::endl;
+  for (auto f: _objInfo.__f)
+  {
+    std::cout << "f: ";
+    for (auto point: f)
+    {
+      int i = 0;
+      for (auto value: point)
+      {
+        std::cout << value;
+        if (i != 2)
+          std::cout << "/";
+        i++;
+      }
+      std::cout << " ";
+    }
+    std::cout << std::endl;
+  }
+  std::cout << "--- vt ---" << std::endl;
+  for (auto vt: _objInfo.__vt)
+    std::cout << "vt: " << vt.x << ", " << vt.y << std::endl;
+  std::cout << "--- vn ---" << std::endl;
+  for (auto vn: _objInfo.__vn)
+    std::cout << "vn: " << vn << std::endl;
+  std::cout << "--- group ---" << std::endl;
+  for (auto g: _objInfo.__group)
+  {
+    std::cout << "g_name: " << g.__mtlName << std::endl;
+    std::cout << "g_at: " << g.__useMtlAt << std::endl;
+  }
+  std::cout << "--- mtl ---" << std::endl;
+  for (auto mtl: _meterial)
+  {
+    std::cout << "name: " << mtl.__name << std::endl;
+    std::cout << "     --- color ---" << std::endl;
+    std::cout << "d: " << mtl.__d << std::endl;
+    std::cout << "kd: " << mtl.__kd << std::endl;
+    std::cout << "ka: " << mtl.__ka << std::endl;
+    std::cout << "ks: " << mtl.__ks << std::endl;
+    std::cout << "ns: " << mtl.__ns << std::endl;
+    std::cout << "illum: " << mtl.__illum << std::endl;
+    std::cout << "     --- map ---" << std::endl;
+    std::cout << "enable: " << mtl.__map_Kd.__enable << std::endl;
+    std::cout << "----------------" << std::endl;
+  }
+}
+
 Object::~Object(void) {}
 Object::Object(const std::string& fileName): _objFile(fileName)
 {
@@ -18,17 +72,20 @@ Object::Object(const std::string& fileName): _objFile(fileName)
   parsObject();
   std::cout << "[ ✔ ]" << std::endl;
 
-  #ifdef OUTSTANDING
-  std::cout << "Load material file . . . ";
-  parsMaterial();
-  std::cout << "[ ✔ ]" << std::endl;
-  #else
-  std::cout << "Load default texture . . . ";
-  defaultMaterial();
-  std::cout << "[ ✔ ]" << std::endl;
-  #endif
 
-  getVertexs();
+  if (USE_MTL)
+  {
+    std::cout << "Load material file . . . ";
+    parsMaterial();
+    std::cout << "[ ✔ ]" << std::endl;
+  }
+  else
+  {
+    std::cout << "Load default texture . . . ";
+    defaultMaterial();
+    std::cout << "[ ✔ ]" << std::endl;
+  }
+  // printAll();
 }
 
 void  Object::defaultMaterial()
@@ -40,6 +97,7 @@ void  Object::defaultMaterial()
   int dataSize = mtl.__map_Kd.__width * mtl.__map_Kd.__height * 3;
   mtl.__map_Kd.__data.assign(bmp, bmp + dataSize);
 
+  mtl.__map_Kd.__enable = true;
   _meterial.push_back(mtl);
   delete[] bmp;
 }
@@ -90,17 +148,26 @@ void	Object::parseFileObj(std::fstream& file)
       else if (word == "v")
         vec3Collect(line, _objInfo.__v);
       else if (word == "vt")
-        vec2Collect(line, _objInfo.__vt);
+      {
+        if (USE_VT)
+          vec2Collect(line, _objInfo.__vt);
+      }
       else if (word == "vn")
-        vec3Collect(line, _objInfo.__vn);
+      {
+        if (USE_VN)
+          vec3Collect(line, _objInfo.__vn);
+      }
       else if (word == "f")
         faceCollect(line, _objInfo.__f, _objInfo.__v);
       else if (word == "usemtl")
       {
-        t_object_group group{};
-        group.__useMtlAt = _objInfo.__f.size();
-        std::getline(line, group.__mtlName);
-        _objInfo.__group.push_back(group);
+        if (USE_MTL)
+        {
+          t_object_group group{};
+          group.__useMtlAt = _objInfo.__f.size();
+          std::getline(line, group.__mtlName);
+          _objInfo.__group.push_back(group);
+        }
       }
       else if (word == "s"){}
       else if (word == "g"){}
@@ -248,6 +315,8 @@ t_vec3 getVertexFromNumber(int vertexNumber, const std::vector<t_vec3>& v)
 
 t_vec3 getNormalFromNumber(int normalNumber, const std::vector<t_vec3>& vn, const t_faces::iterator& face, const std::vector<t_vec3>& v)
 {
+  if (!USE_VN)
+    return {0, 0, 0};
   if (normalNumber == -1)
   {
     std::vector<t_vec3> triangle;
@@ -260,7 +329,7 @@ t_vec3 getNormalFromNumber(int normalNumber, const std::vector<t_vec3>& vn, cons
 
 t_vec2 getTextureFromNumber(int textureNumber, const std::vector<t_vec2>& vt)
 {
-  if (textureNumber == -1)
+  if (textureNumber == -1 || !USE_VT)
     return {0, 0};
   return vt.at(textureNumber - 1);
 }
@@ -268,20 +337,16 @@ t_vec2 getTextureFromNumber(int textureNumber, const std::vector<t_vec2>& vt)
 std::vector<float>        Object::getVertexs(void)
 {
   std::vector<float> res;
-  for (std::vector<t_object_group>::iterator group = _objInfo.__group.begin();
-  group != _objInfo.__group.end(); group++)
+  for (t_faces::iterator face = _objInfo.__f.begin(); face != _objInfo.__f.end(); face++)
   {
-    for (t_faces::iterator face = _objInfo.__f.begin(); face != _objInfo.__f.end(); face++)
+    for (t_face::iterator fpoint = face->begin(); fpoint != face->end(); fpoint++)
     {
-      for (t_face::iterator fpoint = face->begin(); fpoint != face->end(); fpoint++)
-      {
-        t_vec3 v = getVertexFromNumber(fpoint->at(0), _objInfo.__v);
-        t_vec2 vt = getTextureFromNumber(fpoint->at(1), _objInfo.__vt);
-        t_vec3 vn = getNormalFromNumber(fpoint->at(2), _objInfo.__vn, face, _objInfo.__v);
-        res.push_back(v.x); res.push_back(v.y); res.push_back(v.z);
-        res.push_back(vt.x); res.push_back(vt.y);
-        res.push_back(vn.x); res.push_back(vn.y); res.push_back(vn.z);
-      }
+      t_vec3 v = getVertexFromNumber(fpoint->at(0), _objInfo.__v);
+      t_vec2 vt = getTextureFromNumber(fpoint->at(1), _objInfo.__vt);
+      t_vec3 vn = getNormalFromNumber(fpoint->at(2), _objInfo.__vn, face, _objInfo.__v);
+      res.push_back(v.x); res.push_back(v.y); res.push_back(v.z);
+      res.push_back(vt.x); res.push_back(vt.y);
+      res.push_back(vn.x); res.push_back(vn.y); res.push_back(vn.z);
     }
   }
   return res;
@@ -325,6 +390,8 @@ t_materials                 Object::getMaterialList(void) const
 std::vector<int>            Object::getMaterialNumber(void) const
 {
   std::vector<int> res;
+  if (!USE_MTL)
+    res.push_back(0);
   for (std::vector<t_object_group>::const_iterator group = _objInfo.__group.begin();
   group != _objInfo.__group.end(); group++)
   {
@@ -332,66 +399,16 @@ std::vector<int>            Object::getMaterialNumber(void) const
     for (t_materials::const_iterator it = _meterial.begin(); it != _meterial.end(); it++)
     {
       if (it->__name == group->__mtlName)
-        res.push_back(count);
+        break ;
       else
         count++;
     }
+    if ((size_t)count == _meterial.size())
+      count = 0;
+    res.push_back(count);
   }
   return res;
 }
-
-// std::vector<float>        Object::getVertexs(void) const
-// {
-//   std::vector<float> res;
-//
-//   // for (std::vector<t_vec3>::const_iterator it = _v.begin(); it != _v.end(); it++)
-//   // {
-//   //   res.push_back(it->x);
-//   //   res.push_back(it->y);
-//   //   res.push_back(it->z);
-//   // }
-//   for (std::vector<std::vector<std::vector<int> > >::const_iterator it = _f.begin(); it != _f.end(); it++)
-//   {
-//     for (std::vector<std::vector<int> >::const_iterator f = it->begin(); f != it->end(); f++)
-//     {
-//       t_vec3 vertex = _v[f->at(0) - 1];
-//       res.push_back(vertex.x);
-//       res.push_back(vertex.y);
-//       res.push_back(vertex.z);
-//
-//       if (f->at(1) == -1)
-//       {
-//         res.push_back(0);
-//         res.push_back(0);
-//       }
-//       else
-//       {
-//         t_vec2 vertexTexture = _vt[f->at(1) - 1];
-//         res.push_back(vertexTexture.x);
-//         res.push_back(vertexTexture.y);
-//       }
-//
-//
-//       t_vec3 vertexNormal;
-//       if (f->at(2) == -1)
-//         vertexNormal = findVn(_v[it->at(0)[0] - 1], _v[it->at(1)[0] - 1], _v[it->at(2)[0] - 1]);
-//       else
-//         vertexNormal = _vn[f->at(2) - 1];
-//       res.push_back(vertexNormal.x);
-//       res.push_back(vertexNormal.y);
-//       res.push_back(vertexNormal.z);
-//     }
-//   }
-//   // int a = 0;
-//   // for (auto f: res)
-//   // {
-//   //   std::cout << "v: " << f << " ";
-//   //   a++;
-//   //   if (a % 3 == 0)
-//   //     std::cout << std::endl;
-//   // }
-//   return res;
-// }
 
 void normalizeCenter(std::vector<t_vec3>& v)
 {
@@ -592,11 +609,13 @@ void	Object::parseFileMtl(std::fstream& file)
         continue ;
 
       t_material& mtl = _meterial.at(_meterial.size() -1);
-      if (word == "map_Kd")
+      if (!USE_MTL_TEXTURE) {}
+      else if (word == "map_Kd")
       {
         mtl.__map_Kd.__enable = true;
         textureCollect(line, mtl.__map_Kd, _objFile);
       }
+      if (!USE_MTL_COLOR) {}
       else if (word == "d")
         line >> mtl.__d;
       else if (word == "Kd")
