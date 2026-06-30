@@ -15,6 +15,55 @@
 # include <cmath>
 # include <map>
 
+#ifdef __USE_VT
+# define USE_VT true
+#else
+# define USE_VT false
+#endif
+
+#ifdef __USE_VN
+# define USE_VN true
+#else
+# define USE_VN false
+#endif
+
+#ifdef __USE_MTL
+# define USE_MTL true
+#else
+# define USE_MTL false
+#endif
+
+#ifdef __USE_MTL_COLOR
+# define USE_MTL_COLOR true
+#else
+# define USE_MTL_COLOR false
+#endif
+
+#ifdef __USE_MTL_TEXTURE
+# define USE_MTL_TEXTURE true
+#else
+# define USE_MTL_TEXTURE false
+#endif
+
+#ifdef __USE_MOUSE_SCROLL
+# define USE_MOUSE_SCROLL true
+#else
+# define USE_MOUSE_SCROLL false
+#endif
+
+#ifdef __USE_MOUSE_CLICK
+# define USE_MOUSE_CLICK true
+#else
+# define USE_MOUSE_CLICK false
+#endif
+
+#ifdef __USE_WIREFRAME
+# define USE_WIREFRAME true
+#else
+# define USE_WIREFRAME false
+#endif
+
+
 struct t_texture
 {
   bool                        __enable;
@@ -55,7 +104,6 @@ struct t_material
   float           __ns; // Specular Exponent / Shininess
   int             __illum; // Illumination Model
   t_texture       __map_Kd; // defual texture
-  t_texture       __map_Bump;
 
   t_material(void){
     __name = "noname";
@@ -66,7 +114,6 @@ struct t_material
     __ns = 0;
     __illum = 2;
     __map_Kd = {false, {255, 255 ,255}, 1, 1, 3, {1, 1, 1 }};
-    __map_Bump = {false, {255, 255 ,255}, 1, 1, 3, {1, 1, 1 }};
   }
 };
 
@@ -87,6 +134,7 @@ private:
   void            parseFileObj(std::fstream& file);
   void            parseFileMtl(std::fstream& file);
   void            defaultMaterial(void);
+  void            printAll(void);
 public:
                       Object(const std::string& objFile);
                       ~Object(void);
