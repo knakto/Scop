@@ -19,10 +19,12 @@ layout (location = 3) in vec3 aNormal;
 
 out vec2 TexCoord;
 out vec3 Normal;
+out vec2 uv;
 uniform vec2 textureScale;
 uniform mat4 matrix;
 void main()
 {
+    uv = aPos.yz;
     gl_Position = matrix * vec4(aPos, 1.0);
     TexCoord = aTex * textureScale;
     Normal = mat3(matrix) * aNormal;
@@ -41,6 +43,7 @@ uniform Material material;
 
 in vec2 TexCoord;
 in vec3 Normal;
+in vec2 uv;
 out vec4 FragColor;
 uniform int mode;
 uniform vec3 lightPos;
@@ -65,13 +68,23 @@ void main()
     FragColor = vec4(texture_color, 1) * vec4(ambient + finalColor, 1);
   }
   else if (mode == 2)
-    FragColor = texture(material.map, TexCoord);
+  {
+    FragColor = texture(material.map, uv);
+  }
   else if (mode == 3)
+  {
+    FragColor = texture(material.map, TexCoord);
+  }
+  else if (mode == 4)
+  {
+    FragColor = vec4(material.Kd, 1);
+  }
+  else if (mode == 5)
   {
     vec3 normalColor = normalize(Normal) * 0.5 + 0.5;
     FragColor = vec4(normalColor, 1.0);
   }
-  else if (mode == 4)
+  else if (mode == 6)
   {
     vec3 lightDir = normalize(lightPos); 
     vec3 norm = normalize(Normal);
