@@ -149,6 +149,8 @@ void Application::setupTexture(void) {
   t_materials m = _obj->getMaterialList();
   for (t_materials::iterator it = m.begin(); it != m.end(); it++)
   {
+    if (!it->__map_Kd.__enable)
+      continue;
     GLuint textureID;
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &textureID);
@@ -243,6 +245,8 @@ void keyCallbackWrapper(GLFWwindow* window, int key, int scancode, int action, i
   Transform* transform = static_cast<Transform*>(glfwGetWindowUserPointer(window));
 
   if (key == GLFW_KEY_T && action == GLFW_PRESS) {
+    if (!USE_WIREFRAME)
+      return ;
     transform->_var.isWireFrame = !transform->_var.isWireFrame;
     if (transform->_var.isWireFrame)
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -265,12 +269,24 @@ void keyCallbackWrapper(GLFWwindow* window, int key, int scancode, int action, i
     transform->_var.mode = 3;
   if (key == GLFW_KEY_4 && action == GLFW_PRESS)
     transform->_var.mode = 4;
+  if (key == GLFW_KEY_5 && action == GLFW_PRESS)
+    transform->_var.mode = 5;
+  if (key == GLFW_KEY_6 && action == GLFW_PRESS)
+    transform->_var.mode = 6;
+  if (key == GLFW_KEY_7 && action == GLFW_PRESS)
+    transform->_var.mode = 7;
+  if (key == GLFW_KEY_8 && action == GLFW_PRESS)
+    transform->_var.mode = 8;
+  if (key == GLFW_KEY_9 && action == GLFW_PRESS)
+    transform->_var.mode = 9;
   if (key == GLFW_KEY_C && action == GLFW_PRESS)
     transform->_var.isSpin = !transform->_var.isSpin;
 }
 
 void scrollCallbackWrapper(GLFWwindow* window, double xoffset, double yoffset)
 {
+  if (!USE_MOUSE_SCROLL)
+    return ;
   (void)xoffset;
   Transform* transform = static_cast<Transform*>(glfwGetWindowUserPointer(window));
   float scale = transform->getMove(Transform::Z_AXIS) * 0.1;
@@ -279,6 +295,8 @@ void scrollCallbackWrapper(GLFWwindow* window, double xoffset, double yoffset)
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
+  if (!USE_MOUSE_CLICK)
+    return ;
   (void)mods;
   Transform* transform = static_cast<Transform*>(glfwGetWindowUserPointer(window));
   if (button == GLFW_MOUSE_BUTTON_LEFT)
@@ -310,6 +328,8 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 }
 
 void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
+  if (!USE_MOUSE_CLICK)
+    return ;
   Transform* transform = static_cast<Transform*>(glfwGetWindowUserPointer(window));
   if (transform->_var.mouseClick)
   {
@@ -333,12 +353,17 @@ void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
   }
 }
 
-void sendMaterial(t_material mtl, GLuint shaderProgram, GLuint textureID)
+void sendMaterial(t_materials& mtls, std::vector<GLuint>& textures, GLuint shaderProgram, int index)
 {
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, textureID);
-  glUniform1i(glGetUniformLocation(shaderProgram, "material.map"),
-              0);
+  t_material& mtl = mtls.at(index);
+  if (mtl.__map_Kd.__enable)
+  {
+    GLuint& textureID = textures.at(index);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glUniform1i(glGetUniformLocation(shaderProgram, "material.map"),
+                0);
+  }
   glUniform3f(glGetUniformLocation(shaderProgram, "material.Ka"),
               mtl.__ka.x, mtl.__ka.y, mtl.__ka.z);
   glUniform3f(glGetUniformLocation(shaderProgram, "material.Kd"),
@@ -393,8 +418,8 @@ void Application::mainloop(void) {
     int sumIndicesSize = 0;
     for (size_t index = 0; index < sizes.size(); index++)
     {
-      sendMaterial(material.at(textureNumberID.at(index)), _appInfo.__shaderProgram,
-                   _appInfo.__tbo.at(textureNumberID.at(index)));
+      if (textureNumberID.size() != 0)
+        sendMaterial(material, _appInfo.__tbo, _appInfo.__shaderProgram, textureNumberID.at(index));
       glDrawElements(GL_TRIANGLES, sizes.at(index), GL_UNSIGNED_INT,
                      (void*)(sumIndicesSize * sizeof(unsigned int)));
       sumIndicesSize += sizes.at(index);
