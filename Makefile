@@ -14,9 +14,10 @@ SRC  = $(addprefix $(SRC_DIR)/, $(FILES))
 OBJ  = $(addprefix $(OBJ_DIR)/, $(FILES:%.cpp=%.o))
 DEP  = $(OBJ:%.o=%.d)
 
-CFLAGS := -MMD -MP -g -Wall -Wextra -Werror -Wpedantic -DOUTSTANDING
+BONUS_FLAGS := -D__USE_VT -D__USE_VN -D__USE_MTL -D__USE_MTL_COLOR -D__USE_MTL_TEXTURE -D__USE_MOUSE_CLICK -D__USE_MOUSE_SCROLL -D__USE_WIREFRAME
+CFLAGS := -MMD -MP -g -Wall -Wextra -Werror -Wpedantic
 VKFLAGS := -lglfw -lGLEW -lGL
-FLAGS = $(VKFLAGS) $(CFLAGS)
+FLAGS = $(VKFLAGS) $(CFLAGS) $(BONUS_FLAGS)
 
 all: $(NAME)
 
@@ -29,7 +30,7 @@ $(OBJ_DIR):
 -include $(DEP)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp Makefile | $(OBJ_DIR)
-	c++ $(CFLAGS) -c $< $(INC) -o $@
+	c++ $(CFLAGS) $(BONUS_FLAGS) -c $< $(INC) -o $@
 
 clean:
 	$(RM) $(OBJ_DIR)
